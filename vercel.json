@@ -1,13 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
+  "cleanUrls": true,
+  "headers": [
     {
-      "source": "/",
-      "destination": "https://guardian-angel-mvp-03-supabase-connected-online-v5-e6a8lwcl1.vercel.app/"
-    },
-    {
-      "source": "/:path*",
-      "destination": "https://guardian-angel-mvp-03-supabase-connected-online-v5-e6a8lwcl1.vercel.app/:path*"
+      "source": "/(.*)",
+      "headers": [
+        {"key":"X-Content-Type-Options","value":"nosniff"},
+        {"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"}
+      ]
     }
   ]
 }
