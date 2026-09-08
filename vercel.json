@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "https://guardian-angel-mvp-03-supabase-connected-online-v5-e6a8lwcl1.vercel.app/:path*"
+    }
+  ]
+}
