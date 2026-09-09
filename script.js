@@ -86,6 +86,39 @@ async function signInWithGoogle(){
 function showAuthError(t){$('authError').textContent=t;$('authError').classList.remove('hidden')}
 async function logout(){if(realtimeChannel)await sb.removeChannel(realtimeChannel);await sb.auth.signOut();currentConversation=null}
 
+let gaBadgeTimer=null;
+function gaSetBadge(selector,count){
+ const el=document.querySelector(selector); if(!el)return;
+ let b=el.querySelector('.gaUnreadBadge');
+ count=Math.max(0,Number(count)||0);
+ if(!count){if(b)b.remove();return}
+ if(!b){b=document.createElement('span');b.className='gaUnreadBadge';el.appendChild(b)}
+ b.textContent=count>99?'99+':String(count);
+}
+async function refreshUnreadBadges(){
+ if(!user||!sb)return;
+ try{
+  const n=await sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',user.id).is('read_at',null);
+  gaSetBadge('.navbtn[data-page="notifications"]',n.count||0); gaSetBadge('.topActions .iconBtn[aria-label="Notifikasi"]',n.count||0);
+ }catch(e){console.warn('notification badge:',e)}
+ try{
+  const {data:convs}=await sb.from('conversations').select('id').or('user1_id.eq.'+user.id+',user2_id.eq.'+user.id);
+  const ids=(convs||[]).map(x=>x.id);
+  let count=0;
+  if(ids.length){
+   const q=await sb.from('messages').select('id',{count:'exact',head:true}).in('conversation_id',ids).neq('sender_id',user.id).is('read_at',null);
+   count=q.count||0;
+  }
+  gaSetBadge('.navbtn[data-page="chat"]',count); gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',count);
+ }catch(e){console.warn('message badge:',e)}
+}
+function startUnreadBadges(){
+ refreshUnreadBadges(); if(gaBadgeTimer)clearInterval(gaBadgeTimer); gaBadgeTimer=setInterval(refreshUnreadBadges,12000);
+ if(window.__gaBadgeChannel)sb.removeChannel(window.__gaBadgeChannel);
+ window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
+  .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
+  .subscribe();
+}
 function bindNav(){document.querySelectorAll('.navbtn').forEach(b=>{b.onclick=()=>{currentPage=b.dataset.page;document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');showPage(currentPage)}})}
 async function showPage(page){currentPage=page;document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('main').innerHTML='<div class="card">Memuat...</div>';if(page==='home')await renderHome();if(page==='prayer')await renderPrayer();if(page==='friends')await renderFriends();if(page==='chat')await renderChat();if(page==='notifications')await renderNotifications();if(page==='profile')await renderProfile();if(page==='admin')await renderAdmin()}
 
