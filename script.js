@@ -91,9 +91,13 @@ function gaSetBadge(selector,count){
  const el=document.querySelector(selector); if(!el)return;
  let b=el.querySelector('.gaUnreadBadge');
  count=Math.max(0,Number(count)||0);
- if(!count){if(b)b.remove();return}
- if(!b){b=document.createElement('span');b.className='gaUnreadBadge';el.appendChild(b)}
- b.textContent=count>99?'99+':String(count);
+ if(!count){if(b)b.remove();}
+ else {if(!b){b=document.createElement('span');b.className='gaUnreadBadge';el.appendChild(b)} b.textContent=count>99?'99+':String(count);}
+ // When Guardian Angel is packaged as the Android app, mirror the same
+ // unread count to the native notification badge.
+ if(selector.includes('data-page="chat"') && window.GuardianAngelAndroid?.setUnreadMessages){
+   try{window.GuardianAngelAndroid.setUnreadMessages(count)}catch(e){console.warn('native message badge:',e)}
+ }
 }
 async function refreshUnreadBadges(){
  if(!user||!sb)return;
