@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         splash.setOrientation(LinearLayout.VERTICAL);
         splash.setGravity(Gravity.CENTER);
         splash.setPadding(32, 32, 32, 32);
-        splash.setBackgroundColor(Color.rgb(248, 245, 235));
+        splash.setBackgroundColor(Color.rgb(251, 248, 239));
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(com.guardianangel.app.R.drawable.ic_guardian_angel);
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView title = new TextView(this);
         title.setText("Guardian Angel");
-        title.setTextColor(Color.rgb(8, 102, 60));
+        title.setTextColor(Color.rgb(164, 113, 22));
         title.setTextSize(28);
         title.setGravity(Gravity.CENTER);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView subtitle = new TextView(this);
         subtitle.setText("Saling menguatkan • Bertumbuh bersama");
-        subtitle.setTextColor(Color.rgb(139, 116, 64));
+        subtitle.setTextColor(Color.rgb(154, 113, 39));
         subtitle.setTextSize(11);
         subtitle.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams subtitleParams = new LinearLayout.LayoutParams(
