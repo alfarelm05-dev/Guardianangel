@@ -424,3 +424,28 @@ header{background:rgba(255,252,244,.96)!important;border-bottom:1px solid rgba(2
 .gaAuthDialog{background:linear-gradient(145deg,#fffdf7 0%,#fff2d5 48%,#edf6ee 100%)!important;border:2px solid rgba(201,154,50,.38)!important}.gaAuthMark{background:linear-gradient(145deg,#1c734b,#0c442e)!important;border-color:#efc969!important}.gaAuthBrandName{color:#175b3d!important}.gaAuthBrandTag,.gaAuthKicker{color:#a47625!important}.gaAuthIntro h2{color:#294536!important}.gaAuthPrimary{background:linear-gradient(135deg,#b77f18,#e0b95f)!important}.gaFaithNote{background:linear-gradient(135deg,#fff8e7,#edf6ee)!important;border-color:#e7d7b0!important}.gaGoogle{border-color:#ddcfad!important;background:#fffdf8!important}
 .bottomNav,.mobileNav{background:rgba(255,252,244,.98)!important;border-top-color:rgba(201,154,50,.26)!important}.bottomNav .active,.mobileNav .active{color:#a87316!important}
 `;document.head.appendChild(s)})();
+
+/* ===== PROFESSIONAL STORY CARD v6 — media and text clearly separated ===== */
+(function(){const s=document.createElement('style');s.id='guardian-story-professional-v6';s.textContent=`
+.stories{display:flex!important;gap:18px!important;align-items:stretch!important;padding:4px 2px 12px!important}
+.stories .story,.story{position:relative!important;overflow:hidden!important;border-radius:18px!important;min-height:184px!important;background:#fffdf8!important;border:1px solid #e3d5b7!important;box-shadow:0 8px 24px rgba(67,55,31,.09)!important;color:#403621!important}
+/* uploaded/photo story: image occupies a clean media area, never behind the text */
+.stories .story:not(.add),.story:not(.add){display:flex!important;flex-direction:column!important;background:#fffdf8!important;padding:0!important}
+.stories .story:not(.add) .storyImage,.story:not(.add) .storyImage,.stories .story:not(.add) img{position:relative!important;inset:auto!important;width:100%!important;height:112px!important;min-height:112px!important;object-fit:cover!important;display:block!important;border-radius:17px 17px 0 0!important;filter:saturate(.92)!important}
+.stories .story:not(.add) .storyShade,.story:not(.add) .storyShade{display:none!important}
+.stories .story:not(.add) .storyContent,.story:not(.add) .storyContent{position:relative!important;inset:auto!important;display:flex!important;flex-direction:column!important;gap:6px!important;padding:12px 13px 14px!important;background:#fffdf8!important;color:#4a3c23!important;text-shadow:none!important;min-height:60px!important;justify-content:center!important}
+.stories .story:not(.add) .storyContent *,.story:not(.add) .storyContent *{position:relative!important;color:#4a3c23!important;text-shadow:none!important}
+/* text-only story: elegant ivory card with a distinct gold band */
+.stories .story.textStory,.story.textStory{background:linear-gradient(145deg,#fffaf0,#f8edcf)!important;border:1px solid #d7b15b!important}
+.stories .story.textStory .storyContent,.story.textStory .storyContent{padding:18px 15px!important;color:#5b4821!important;font-family:Georgia,serif!important;line-height:1.55!important}
+.stories .story.textStory:before,.story.textStory:before{content:""!important;position:absolute!important;left:0!important;top:0!important;width:5px!important;height:100%!important;background:linear-gradient(180deg,#f0cc72,#b77f18)!important;z-index:2!important}
+/* Add/upload card is clearly separated from stories */
+.stories .story.add,.story.add{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;background:#fffdf8!important;border:1px dashed #c99a32!important;color:#9a6b18!important;padding:14px!important;box-shadow:none!important}
+.stories .story.add:before{position:relative!important;inset:auto!important;width:48px!important;height:48px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(145deg,#e7c36e,#bd8926)!important;box-shadow:0 7px 16px rgba(173,126,37,.18)!important}
+.stories .story.add:after{position:relative!important;display:block!important;color:#8f681e!important;font-size:12px!important;font-weight:700!important;letter-spacing:.01em!important}
+/* Story text spacing */
+.storyText,.storyMessage,.storyCaption{display:block!important;margin:0!important;padding:0!important;line-height:1.55!important;letter-spacing:.01em!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.storyAuthor{display:block!important;margin-top:7px!important;font-size:11px!important;font-weight:700!important;color:#9b752c!important}
+.storyDate{display:block!important;margin-top:3px!important;font-size:10px!important;color:#948773!important}
+@media(max-width:760px){.stories{gap:12px!important;padding-bottom:10px!important}.stories .story,.story{min-height:172px!important;border-radius:16px!important}.stories .story:not(.add) .storyImage,.story:not(.add) img{height:104px!important;min-height:104px!important}.stories .story:not(.add) .storyContent,.story:not(.add) .storyContent{padding:10px 11px 12px!important;line-height:1.5!important}}
+`;document.head.appendChild(s)})();
