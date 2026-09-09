@@ -112,21 +112,23 @@ async function refreshUnreadBadges(){
  }catch(e){console.warn('notification badge:',e)}
  try{
   const {data:members,error:memberError}=await sb.from('conversation_members').select('conversation_id').eq('user_id',user.id);
+  if(memberError){ console.warn('conversation membership query:',memberError); return; }
   const ids=(members||[]).map(x=>x.conversation_id);
   let count=0;
   if(ids.length){
-   // The current message schema uses status (not read_at). Treat messages not marked read as unread.
    const q=await sb.from('messages').select('id,sender_id').in('conversation_id',ids).neq('sender_id',user.id);
-   if(q.error){ console.warn('message unread query:',q.error); }
-   else {
-    const incoming=q.data||[];
-    const messageIds=incoming.map(m=>m.id);
-    if(messageIds.length){
-     const r=await sb.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds);
-     if(r.error) console.warn('message read-state query:',r.error);
-     const readIds=new Set((r.data||[]).map(x=>x.message_id));
-     count=incoming.reduce((n,m)=>n+(readIds.has(m.id)?0:1),0);
+   if(q.error){ console.warn('message unread query:',q.error); return; }
+   const incoming=q.data||[];
+   const messageIds=incoming.map(m=>m.id);
+   if(messageIds.length){
+    const r=await sb.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds);
+    if(r.error){
+     // Never clear a visible unread badge just because read-state reconciliation failed.
+     console.warn('message read-state query:',r.error);
+     return;
     }
+    const readIds=new Set((r.data||[]).map(x=>x.message_id));
+    count=incoming.reduce((n,m)=>n+(readIds.has(m.id)?0:1),0);
    }
   }
   gaSetBadge('.navbtn[data-page="chat"]',count); gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',count);
