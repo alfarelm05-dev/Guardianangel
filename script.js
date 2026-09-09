@@ -10,6 +10,19 @@
   prompt('Salin tautan profil:',url.toString());}catch(e){if(e?.name!=='AbortError')alert('Tautan profil: '+url.toString())}
 }
 function toggleProfileEditor(){document.getElementById('profileEditor')?.classList.toggle('hidden')}
+async function handleTopAvatar(input){
+  const file=input?.files?.[0]; if(!file)return;
+  if(file.size>5*1024*1024){alert('Ukuran avatar maksimal 5 MB.');input.value='';return}
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+  const path=user.id+'/avatar-'+crypto.randomUUID()+'.'+ext;
+  const {error}=await sb.storage.from('avatars').upload(path,file,{upsert:false,contentType:file.type});
+  if(error){alert('Foto profil gagal disimpan: '+error.message);input.value='';return}
+  const {data:pub}=sb.storage.from('avatars').getPublicUrl(path);
+  const {error:updateError}=await sb.from('profiles').update({avatar_url:pub.publicUrl}).eq('id',user.id);
+  if(updateError){alert('Foto profil gagal diperbarui: '+updateError.message);return}
+  await loadProfile(); await renderProfile();
+}
+window.addEventListener('beforeunload',e=>{if(window.guardianProfileDirty){e.preventDefault();e.returnValue='';}});
 function markProfileDirty(){window.guardianProfileDirty=true}
 async function openProfileTab(tab){
   const tabs=['posts','photos','friends']; if(!tabs.includes(tab))tab='posts';
@@ -53,7 +66,7 @@ async function renderProfile(){
  '<div class="profileHeroCard card">'+
  '<div class="profileCoverNew" style="'+(p.cover_url?'background-image:url("'+esc(p.cover_url)+'")':'')+'"><div class="profileCoverShade"></div></div>'+
  '<div class="profileIdentity">'+
- '<div class="profileAvatarWrap"><div class="avatar profileAvatarNew">'+avatar+'</div><label class="profileCamera" title="Ubah foto profil">✎<input id="avatarFileTop" type="file" accept="image/jpeg,image/png,image/webp"></label></div>'+
+ '<div class="profileAvatarWrap"><div class="avatar profileAvatarNew">'+avatar+'</div><label class="profileCamera" title="Ubah foto profil">✎<input id="avatarFileTop" type="file" accept="image/jpeg,image/png,image/webp" onchange="handleTopAvatar(this)"></label></div>'+
  '<div class="profileMainInfo"><h1>'+esc(p.name||'Pengguna Guardian Angel')+'</h1><p class="profileBio">'+esc(p.bio||'Saling menguatkan, mendoakan, dan bertumbuh bersama.')+'</p>'+
  (p.city?'<div class="profileLocation">⌖ '+esc(p.city)+'</div>':'')+
  '<div class="profileStats"><button onclick="currentPage=\'friends\';showPage(\'friends\')"><b>'+s.followers+'</b><span>Pengikut</span></button><button onclick="alert(\'Daftar akun yang kamu ikuti tersedia di Teman Seiman.\')"><b>'+s.following+'</b><span>Mengikuti</span></button><button onclick="alert(\'Guardian Score mengukur kontribusi positif dan interaksi sehat di komunitas.\')"><b>'+(p.guardian_score??0)+'</b><span>Score</span></button></div>'+
