@@ -372,3 +372,19 @@ header{background:rgba(255,253,247,.94);border-bottom-color:rgba(172,132,50,.16)
 .stories .story{box-shadow:0 12px 26px rgba(28,68,47,.14)}
 @media(max-width:760px){.layout>nav{background:rgba(255,253,247,.97);border-color:rgba(172,132,50,.20)}.layout>nav .navbtn.active{background:#edf6ef}.layout>nav .navbtn.active .navIcon{background:#0a7543}}
 `;document.head.appendChild(s)})();
+
+/* ===== Guardian Angel GOLDEN WARMTH — locked visual correction ===== */
+(function(){const s=document.createElement('style');s.id='guardian-gold-warm-v3';s.textContent=`
+:root{--g:#16734a;--g2:#2f5f49;--mint:#eef6ee;--bg:#fbf8ef;--ink:#26352d;--muted:#7b8178;--line:#e8dfcb;--gold:#c79a43;--gold2:#e2bd68;--gold-soft:#f5e8c8}
+body{background:linear-gradient(180deg,#fffdf7 0%,#faf8f0 48%,#f3f7f2 100%)!important;color:var(--ink)}
+header{background:rgba(255,252,244,.97)!important;border-bottom:2px solid rgba(199,154,67,.28)!important;box-shadow:0 5px 22px rgba(95,76,38,.06)}
+.brandMark{background:linear-gradient(145deg,#237d55,#146342)!important;border:2px solid var(--gold2)!important;box-shadow:0 0 0 3px rgba(226,189,104,.18),0 10px 25px rgba(65,83,57,.16)!important}.brandName{color:#3d5f4c!important}.brandTag{color:#a07832!important}
+.topSearch input{background:#fffdf8!important;border-color:#e4d7b8!important}.iconBtn{color:#6f725f!important}.iconBtn:hover{background:#f5ead0!important;color:#936f29!important}
+.navbtn{color:#59675e!important}.navbtn:hover{background:#f8efd9!important;color:#48705a!important}.navbtn.active{background:linear-gradient(90deg,#edf5ee 0%,#fbf2dc 100%)!important;color:#386b50!important;box-shadow:inset 4px 0 var(--gold),0 5px 16px rgba(183,143,55,.08)!important}.navbtn.active .navIcon{background:linear-gradient(145deg,#d6ad59,#b9872f)!important;color:#fff!important;box-shadow:0 6px 14px rgba(173,126,37,.24)!important}
+.card{background:rgba(255,254,249,.96)!important;border:1px solid rgba(199,154,67,.22)!important;box-shadow:0 12px 35px rgba(83,77,53,.07)!important}.homeHero{background:linear-gradient(125deg,#fffdf7 0%,#f8f0dc 38%,#edf5ed 100%)!important;border:1px solid rgba(199,154,67,.30)!important}.homeHero:before{background:radial-gradient(circle,rgba(224,188,102,.28),transparent 68%)!important}
+.primary{background:linear-gradient(135deg,#b88a35,#d4ab58)!important;color:#fff!important;box-shadow:0 10px 22px rgba(168,122,38,.20)!important}.primary:hover{background:linear-gradient(135deg,#a97b29,#c99b43)!important}.ghost{background:#fffdf8!important;border-color:#decda7!important;color:#5d684f!important}.toolBtn:hover,.actions button:hover{background:#f7edd6!important;color:#8b6728!important}
+.sectionHead h3,.sideTitle{font-family:Georgia,serif;color:#45604f!important}.sideIcon{background:linear-gradient(145deg,#f5dfaa,#d5a94f)!important;color:#fff!important;box-shadow:0 7px 16px rgba(176,130,40,.16)}.sideQuote{color:#4d5f53!important}.right .card{background:linear-gradient(145deg,#fffdf8,#f1f7f1)!important}
+.story,.stories .story{border:2px solid #d6ad59!important;box-shadow:0 10px 24px rgba(102,81,37,.13)!important}.stories .story:first-child{border-color:#b88a35!important}
+.authModal,.modal{background:rgba(38,48,40,.38)!important}.gaAuthDialog{background:linear-gradient(145deg,#fffdf7 0%,#fbf4e2 48%,#eef6ef 100%)!important;border:2px solid rgba(199,154,67,.38)!important}.gaAuthMark{background:linear-gradient(145deg,#2b8058,#176443)!important;border-color:#e0b85e!important;box-shadow:0 0 0 4px rgba(224,184,94,.15),0 12px 28px rgba(55,80,60,.16)!important}.gaAuthBrandName{color:#46644f!important}.gaAuthBrandTag{color:#a47b31!important}.gaAuthKicker{color:#a77929!important}.gaAuthIntro h2{color:#34483d!important}.gaAuthPrimary{background:linear-gradient(135deg,#b88935,#d8b25e)!important}.gaGoogle{border-color:#ddcfad!important;background:#fffdf8!important}
+button{transition:all .18s ease}a{color:#9a732d}
+`;document.head.appendChild(s)})();
