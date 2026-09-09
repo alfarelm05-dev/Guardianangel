@@ -5,8 +5,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -26,6 +34,59 @@ public class MainActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createChannel();
+        showWarmSplash();
+    }
+
+    private void showWarmSplash() {
+        LinearLayout splash = new LinearLayout(this);
+        splash.setOrientation(LinearLayout.VERTICAL);
+        splash.setGravity(Gravity.CENTER);
+        splash.setPadding(32, 32, 32, 32);
+        splash.setBackgroundColor(Color.rgb(248, 245, 235));
+
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(com.guardianangel.app.R.drawable.ic_guardian_angel);
+        logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(156, 156);
+        splash.addView(logo, logoParams);
+
+        TextView title = new TextView(this);
+        title.setText("Guardian Angel");
+        title.setTextColor(Color.rgb(8, 102, 60));
+        title.setTextSize(28);
+        title.setGravity(Gravity.CENTER);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.topMargin = 18;
+        splash.addView(title, titleParams);
+
+        TextView subtitle = new TextView(this);
+        subtitle.setText("Saling menguatkan • Bertumbuh bersama");
+        subtitle.setTextColor(Color.rgb(139, 116, 64));
+        subtitle.setTextSize(11);
+        subtitle.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams subtitleParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        subtitleParams.topMargin = 7;
+        splash.addView(subtitle, subtitleParams);
+
+        TextView verse = new TextView(this);
+        verse.setText("“Jadilah tempat seseorang merasa sedikit lebih kuat setelah bertemu denganmu.”");
+        verse.setTextColor(Color.rgb(91, 105, 97));
+        verse.setTextSize(12);
+        verse.setGravity(Gravity.CENTER);
+        verse.setMaxWidth(500);
+        LinearLayout.LayoutParams verseParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        verseParams.topMargin = 36;
+        splash.addView(verse, verseParams);
+
+        setContentView(splash);
+        new Handler(Looper.getMainLooper()).postDelayed(this::showWebApp, 950);
+    }
+
+    private void showWebApp() {
         webView = new WebView(this);
         setContentView(webView);
         WebSettings s = webView.getSettings();
@@ -81,5 +142,3 @@ public class MainActivity extends AppCompatActivity {
         else super.onBackPressed();
     }
 }
-
-// APK build includes native unread message badge support.
