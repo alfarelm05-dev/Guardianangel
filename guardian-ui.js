@@ -248,3 +248,28 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   .story{width:128px!important;min-width:128px!important;height:184px!important}
 }
 </style>
+<style id="guardian-mobile-nav-final">
+@media(max-width:760px){
+  .layout>nav{
+    display:flex!important;
+    position:fixed!important;left:10px!important;right:10px!important;bottom:9px!important;top:auto!important;
+    z-index:1000!important;height:74px!important;padding:6px!important;margin:0!important;
+    border-radius:25px!important;background:rgba(255,255,255,.98)!important;
+    border:1px solid #dce9e1!important;box-shadow:0 15px 38px rgba(13,52,36,.20)!important;
+    align-items:center!important;justify-content:space-around!important;gap:2px!important;
+    backdrop-filter:blur(18px)!important;
+  }
+  .layout>nav .navbtn{
+    flex:1 1 0!important;width:auto!important;min-width:0!important;height:60px!important;min-height:0!important;
+    margin:0!important;padding:4px 1px!important;border-radius:17px!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;
+  }
+  .layout>nav .navIcon{width:32px!important;height:32px!important;min-width:32px!important;flex:0 0 32px!important;border-radius:50%!important}
+  .layout>nav .navbtn span:not(.navIcon){font-size:8px!important;line-height:1!important}
+}
+@media(max-width:390px){
+  .layout>nav{left:7px!important;right:7px!important;bottom:7px!important;height:70px!important;padding:5px!important}
+  .layout>nav .navbtn{height:58px!important}
+  .layout>nav .navIcon{width:30px!important;height:30px!important;min-width:30px!important;flex-basis:30px!important}
+}
+</style>
