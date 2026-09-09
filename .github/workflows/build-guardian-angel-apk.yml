@@ -23,14 +23,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10'
-      - name: Build release APK
+      - name: Build signed debug APK
         working-directory: android-app
-        run: gradle assembleRelease --no-daemon
-      - name: Publish APK
+        run: gradle assembleDebug --no-daemon
+      - name: Publish installable APK
         uses: softprops/action-gh-release@v2
         with:
           tag_name: guardian-angel-apk-${{ github.run_number }}
           name: Guardian Angel APK ${{ github.run_number }}
           prerelease: false
-          files: android-app/app/build/outputs/apk/release/app-release.apk
+          files: android-app/app/build/outputs/apk/debug/app-debug.apk
           generate_release_notes: false
