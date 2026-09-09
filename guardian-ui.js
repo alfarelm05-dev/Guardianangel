@@ -114,3 +114,115 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   apply();
   new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
 })();
+
+<style id="ga-final-header-fix">
+/* FINAL MOBILE HEADER — clean hierarchy, no crowding */
+@media(max-width:760px){
+  header{
+    height:68px!important;
+    min-height:68px!important;
+    padding:8px 11px!important;
+    gap:0!important;
+    border-radius:0 0 20px 20px!important;
+    overflow:hidden!important;
+    align-items:center!important;
+  }
+  header .brand{
+    min-width:0!important;
+    width:auto!important;
+    flex:1 1 auto!important;
+    max-width:calc(100% - 142px)!important;
+    gap:9px!important;
+    overflow:hidden!important;
+    align-items:center!important;
+  }
+  header .brandMark{
+    width:43px!important;
+    height:43px!important;
+    flex:0 0 43px!important;
+    border-radius:50%!important;
+    padding:2px!important;
+  }
+  header .brand>div:last-child{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  header .brandName{
+    display:block!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    font-family:Georgia,serif!important;
+    font-size:17px!important;
+    line-height:1.05!important;
+    color:#fff!important;
+    letter-spacing:-.25px!important;
+  }
+  header .brandTag{display:none!important}
+  header .topActions{
+    flex:0 0 auto!important;
+    margin-left:7px!important;
+    gap:3px!important;
+    height:100%!important;
+    align-items:center!important;
+  }
+  header .topActions>.iconBtn{
+    width:35px!important;
+    height:35px!important;
+    flex:0 0 35px!important;
+    border-radius:11px!important;
+    color:#fff!important;
+  }
+  /* Beranda is already in bottom navigation; remove duplicate from header. */
+  header .topActions>.iconBtn:first-child{display:none!important}
+  header #userArea{
+    flex:0 0 auto!important;
+    max-width:78px!important;
+    min-width:0!important;
+    margin-left:1px!important;
+    overflow:hidden!important;
+    font-size:0!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  header #userArea .primary,
+  header #userArea .ghost{
+    min-width:0!important;
+    max-width:78px!important;
+    min-height:35px!important;
+    height:35px!important;
+    padding:6px 10px!important;
+    margin:0!important;
+    border-radius:12px!important;
+    font-size:9px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    box-shadow:none!important;
+  }
+  /* If the signed-in area contains email text, keep it from pushing the header. */
+  header #userArea>*{flex:0 0 auto!important}
+  header #userArea .userEmail,
+  header #userArea [class*="email"],
+  header #userArea small,
+  header #userArea span{
+    display:none!important;
+  }
+  .layout{
+    padding-top:12px!important;
+  }
+  .homeHero{
+    margin-top:0!important;
+  }
+}
+@media(max-width:380px){
+  header{padding-left:9px!important;padding-right:9px!important}
+  header .brand{max-width:calc(100% - 132px)!important}
+  header .brandMark{width:40px!important;height:40px!important;flex-basis:40px!important}
+  header .brandName{font-size:16px!important}
+  header .topActions>.iconBtn{width:33px!important;height:33px!important;flex-basis:33px!important}
+  header #userArea,.header #userArea{max-width:72px!important}
+  header #userArea .primary,header #userArea .ghost{max-width:72px!important;padding-left:8px!important;padding-right:8px!important}
+}
+</style>
