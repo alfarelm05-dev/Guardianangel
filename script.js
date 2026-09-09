@@ -137,8 +137,22 @@ function startUnreadBadges(){
  if(window.__gaBadgeChannel)sb.removeChannel(window.__gaBadgeChannel);
  window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
   .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
-  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},(payload)=>{
-    if(payload?.new?.sender_id && payload.new.sender_id!==user.id){ refreshUnreadBadges(); gaMessageToast(); }
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async(payload)=>{
+    const m=payload?.new;
+    if(!m?.sender_id || m.sender_id===user.id || !m.conversation_id) return;
+    try{
+      const {data:member}=await sb.from('conversation_members').select('conversation_id').eq('conversation_id',m.conversation_id).eq('user_id',user.id).maybeSingle();
+      if(!member) return;
+      // A brand-new incoming message is unread immediately. Update the badge
+      // optimistically so it appears at once, then reconcile with Supabase.
+      const nav=document.querySelector('.navbtn[data-page="chat"]');
+      const top=document.querySelector('.topActions .iconBtn[aria-label="Pesan"]');
+      const current=Number(nav?.querySelector('.gaUnreadBadge')?.textContent||0);
+      gaSetBadge('.navbtn[data-page="chat"]',current+1);
+      gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',current+1);
+      gaMessageToast();
+      setTimeout(refreshUnreadBadges,300);
+    }catch(e){console.warn('message realtime badge:',e);refreshUnreadBadges()}
   })
   .subscribe();
 }
