@@ -28,7 +28,7 @@ async function afterAuth(){
  }
  $('userArea').innerHTML=`<span class="muted">${esc(profile?.name||user.email||'Pengguna')}</span> <button class="ghost" onclick="logout()">Keluar</button>`;
  if(await isAdmin()) $('adminNav').classList.remove('hidden'); else $('adminNav').classList.add('hidden');
- bindNav(); showPage(currentPage); startUnreadBadges();
+ bindNav(); showPage(currentPage);
 }
 async function loadProfile(){
  profile=null;
@@ -86,74 +86,6 @@ async function signInWithGoogle(){
 function showAuthError(t){$('authError').textContent=t;$('authError').classList.remove('hidden')}
 async function logout(){if(realtimeChannel)await sb.removeChannel(realtimeChannel);await sb.auth.signOut();currentConversation=null}
 
-let gaBadgeTimer=null;
-function gaSetBadge(selector,count){
- const el=document.querySelector(selector); if(!el)return;
- let b=el.querySelector('.gaUnreadBadge');
- count=Math.max(0,Number(count)||0);
- if(!count){if(b)b.remove();}
- else {if(!b){b=document.createElement('span');b.className='gaUnreadBadge';el.appendChild(b)} b.textContent=count>99?'99+':String(count);}
- // When Guardian Angel is packaged as the Android app, mirror the same
- // unread count to the native notification badge.
- if(selector.includes('data-page="chat"') && window.GuardianAngelAndroid?.setUnreadMessages){
-   try{window.GuardianAngelAndroid.setUnreadMessages(count)}catch(e){console.warn('native message badge:',e)}
- }
-}
-async function refreshUnreadBadges(){
- if(!user||!sb)return;
- try{
-  const n=await sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',user.id).is('read_at',null);
-  gaSetBadge('.navbtn[data-page="notifications"]',n.count||0); gaSetBadge('.topActions .iconBtn[aria-label="Notifikasi"]',n.count||0);
- }catch(e){console.warn('notification badge:',e)}
- try{
-  const {data:members,error:memberError}=await sb.from('conversation_members').select('conversation_id').eq('user_id',user.id);
-  if(memberError){ console.warn('conversation membership query:',memberError); return; }
-  const ids=(members||[]).map(x=>x.conversation_id);
-  let count=0;
-  if(ids.length){
-   const q=await sb.from('messages').select('id,sender_id').in('conversation_id',ids).neq('sender_id',user.id);
-   if(q.error){ console.warn('message unread query:',q.error); return; }
-   const incoming=q.data||[];
-   const messageIds=incoming.map(m=>m.id);
-   if(messageIds.length){
-    const r=await sb.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds);
-    if(r.error){
-     // Never clear a visible unread badge just because read-state reconciliation failed.
-     console.warn('message read-state query:',r.error);
-     return;
-    }
-    const readIds=new Set((r.data||[]).map(x=>x.message_id));
-    count=incoming.reduce((n,m)=>n+(readIds.has(m.id)?0:1),0);
-   }
-  }
-  gaSetBadge('.navbtn[data-page="chat"]',count); gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',count);
- }catch(e){console.warn('message badge:',e)}
-}
-function startUnreadBadges(){
- refreshUnreadBadges(); if(gaBadgeTimer)clearInterval(gaBadgeTimer); gaBadgeTimer=null;
- if(window.__gaBadgeChannel)sb.removeChannel(window.__gaBadgeChannel);
- window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
-  .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
-  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async(payload)=>{
-    const m=payload?.new;
-    if(!m?.sender_id || m.sender_id===user.id || !m.conversation_id) return;
-    try{
-      const {data:member}=await sb.from('conversation_members').select('conversation_id').eq('conversation_id',m.conversation_id).eq('user_id',user.id).maybeSingle();
-      if(!member) return;
-      // A brand-new incoming message is unread immediately. Update the badge
-      // optimistically so it appears at once, then reconcile with Supabase.
-      const nav=document.querySelector('.navbtn[data-page="chat"]');
-      const top=document.querySelector('.topActions .iconBtn[aria-label="Pesan"]');
-      const raw=nav?.querySelector('.gaUnreadBadge')?.textContent||'0'; const current=raw==='99+'?99:Number(raw)||0;
-      gaSetBadge('.navbtn[data-page="chat"]',current+1);
-      gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',current+1);
-      // Do not show a toast: the red unread counter is the persistent indicator.
-      // Reconcile only after the user opens the conversation, never immediately.
-
-    }catch(e){console.warn('message realtime badge:',e);refreshUnreadBadges()}
-  })
-  .subscribe();
-}
 function bindNav(){document.querySelectorAll('.navbtn').forEach(b=>{b.onclick=()=>{currentPage=b.dataset.page;document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');showPage(currentPage)}})}
 async function showPage(page){currentPage=page;document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('main').innerHTML='<div class="card">Memuat...</div>';if(page==='home')await renderHome();if(page==='prayer')await renderPrayer();if(page==='friends')await renderFriends();if(page==='chat')await renderChat();if(page==='notifications')await renderNotifications();if(page==='profile')await renderProfile();if(page==='admin')await renderAdmin()}
 
@@ -359,60 +291,20 @@ async function startChat(other){
 }
 
 async function renderChat(){
-  const main=$('main');
-  if(!main||!user)return;
-  // Keep the inbox resilient: only query tables that are required for the
-  // conversation list, and never let an optional unread/read table blank the app.
-  try{
-    const {data:mine,error}=await sb.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
-    if(error) throw error;
-    const ids=[...new Set((mine||[]).map(x=>x.conversation_id))];
-    if(!ids.length){currentConversation=null;main.innerHTML='<div class="card empty"><div class="conversationIcon">💬</div><h2>Pesan</h2><p>Belum ada percakapan.</p><p class="muted">Temukan Teman Seiman untuk memulai.</p></div>';return;}
-    const {data:members,error:memberError}=await sb.from('conversation_members').select('conversation_id,user_id').in('conversation_id',ids);
-    if(memberError) throw memberError;
-    const others=(members||[]).filter(x=>x.user_id!==user.id);
-    const otherIds=[...new Set(others.map(x=>x.user_id))];
-    let profiles=[];
-    if(otherIds.length){const p=await sb.from('public_profiles').select('id,name,avatar_url').in('id',otherIds);profiles=p.data||[];}
-    const pm=Object.fromEntries(profiles.map(x=>[x.id,x]));
-    let msgs=[];
-    try{const q=await sb.from('messages').select('id,conversation_id,sender_id,body,created_at').in('conversation_id',ids).order('created_at',{ascending:false});msgs=q.data||[];}catch(_){}
-    let readSet=new Set();
-    try{
-      const incoming=msgs.filter(x=>x.sender_id!==user.id).map(x=>x.id);
-      if(incoming.length){const q=await sb.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',incoming);readSet=new Set((q.data||[]).map(x=>x.message_id));}
-    }catch(_){}
-    const cards=ids.map(id=>{
-      const other=others.find(x=>x.conversation_id===id);
-      const p=pm[other?.user_id]||{};
-      const last=msgs.find(x=>x.conversation_id===id);
-      const unread=msgs.filter(x=>x.conversation_id===id&&x.sender_id!==user.id&&!readSet.has(x.id)).length;
-      const avatar=p.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':'<span>'+initials(p.name||'Pengguna')+'</span>';
-      const preview=last?(last.sender_id===user.id?'Anda: ':'')+last.body:'Belum ada pesan';
-      const when=last?formatChatTime(last.created_at):'';
-      return '<button type="button" class="conversation-card '+(unread?'is-unread':'')+'" onclick="openConversation(\\''+id+'\\')"><div class="conversation-avatar">'+avatar+'</div><div class="conversation-info"><div class="conversation-top"><b>'+esc(p.name||'Percakapan')+'</b><time>'+esc(when)+'</time></div><div class="conversation-bottom"><span class="conversation-preview">'+esc(preview)+'</span>'+(unread?'<span class="conversation-unread">'+(unread>99?'99+':unread)+'</span>':'')+'</div></div></button>';
-    }).join('');
-    currentConversation=null;
-    main.innerHTML='<div class="card message-inbox"><div class="message-title"><h1>Pesan</h1><span class="muted">Percakapan</span></div><div class="conversation-list">'+cards+'</div></div>';
-  }catch(err){
-    console.error('renderChat:',err);
-    main.innerHTML='<div class="card error-state"><h2>Pesan belum dapat dimuat</h2><p>Terjadi kendala saat memuat percakapan.</p><button class="primary" onclick="renderChat()">Coba Lagi</button></div>';
-  }
+ const {data:members}=await sb.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);const convIds=[...(members||[])].map(x=>x.conversation_id);
+ const {data:allMembers}=convIds.length?await sb.from('conversation_members').select('conversation_id,user_id').in('conversation_id',convIds):{data:[]};
+ const otherIds=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];const {data:pub}=otherIds.length?await sb.from('public_profiles').select('id,name').in('id',otherIds):{data:[]};const names=Object.fromEntries((pub||[]).map(x=>[x.id,x.name]));
+ const list=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.conversation_id))];
+ if(!currentConversation)currentConversation=list[0]||null;
+ $('main').innerHTML=`<div class="card"><h1>Pesan</h1><div class="tabs">${list.map(id=>{const other=(allMembers||[]).find(x=>x.conversation_id===id&&x.user_id!==user.id);return `<button class="${id===currentConversation?'primary':'ghost'}" onclick="selectConversation('${id}')">${esc(names[other?.user_id]||'Percakapan')}</button>`}).join('')||'<span class="muted">Belum ada percakapan. Buka Teman Seiman untuk menyapa seseorang.</span>'}</div></div>${currentConversation?chatBoxHTML():'<div class="card empty">Pilih percakapan untuk mulai mengobrol.</div>'}`;
+ if(currentConversation){await loadMessages();subscribeMessages()}
 }
-function formatChatTime(value){const d=new Date(value);if(Number.isNaN(d.getTime()))return '';const now=new Date();return d.toDateString()===now.toDateString()?d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});}
-async function openConversation(id){
- currentConversation=id;currentPage='chat';
- document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.page==='chat'));
- try{
-  const {data:members}=await sb.from('conversation_members').select('conversation_id,user_id').eq('conversation_id',id);
-  allMembers=members||[];
-  const other=allMembers.find(x=>x.user_id!==user.id);
-  const {data:pub}=other?await sb.from('public_profiles').select('id,name,avatar_url').eq('id',other.user_id).maybeSingle():{data:null};
-  const avatar=pub?.avatar_url?'<img src="'+esc(pub.avatar_url)+'" alt="">':initials(pub?.name||'Percakapan');
-  $('main').innerHTML='<div class="card"><button class="ghost" onclick="closeConversation()">← Pesan</button><div class="conversation-header"><div class="conversation-avatar">'+avatar+'</div><div><h2 style="margin:0">'+esc(pub?.name||'Percakapan')+'</h2><span class="muted">Percakapan pribadi</span></div></div></div>'+chatBoxHTML();
-  await loadMessages();subscribeMessages();
- }catch(err){console.error('openConversation:',err);$('main').innerHTML='<div class="card error-state"><h2>Percakapan tidak dapat dibuka</h2><button class="primary" onclick="renderChat()">Kembali ke Pesan</button></div>';}
-}
+async function selectConversation(id){currentConversation=id;await renderChat()}
+async function loadMessages(){const {data,error}=await sb.from('messages').select('id,sender_id,body,status,created_at').eq('conversation_id',currentConversation).order('created_at');if(error)return alert(error.message);cache.messages=data||[];const ids=[...new Set(cache.messages.map(x=>x.sender_id))];const {data:pub}=ids.length?await sb.from('public_profiles').select('id,name').in('id',ids):{data:[]};const names=Object.fromEntries((pub||[]).map(x=>[x.id,x.name]));const box=$('messageList');if(box){box.innerHTML=cache.messages.map(m=>`<div class="bubble ${m.sender_id===user.id?'mine':''}"><b>${esc(names[m.sender_id]||'Pengguna')}</b><br>${esc(m.body||'')}</div>`).join('');box.scrollTop=box.scrollHeight}}
+function chatBoxHTML(){return `<div class="card"><div id="messageList" class="message-list"><div class="empty">Memuat pesan...</div></div><div class="row"><input id="messageText" class="field" style="flex:1" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="primary" onclick="sendMessage()">Kirim</button></div></div>`}
+async function sendMessage(){const body=$('messageText').value.trim();if(!body||!currentConversation)return;const mod=await moderateText(body);if(mod.level>=4)return alert('Pesan ditolak karena pelanggaran berat.');const {error}=await sb.from('messages').insert({conversation_id:currentConversation,sender_id:user.id,body:body});if(error)return alert(error.message);$('messageText').value='';await loadMessages()}
+function subscribeMessages(){if(realtimeChannel)sb.removeChannel(realtimeChannel);realtimeChannel=sb.channel('guardian-chat-'+currentConversation).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:`conversation_id=eq.${currentConversation}`},()=>loadMessages()).subscribe()}
+
 async function shareProfile(){
   const url=new URL(window.location.href); url.hash='profile';
   const name=profile?.name||'Sahabat Guardian';
