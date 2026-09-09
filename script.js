@@ -87,15 +87,6 @@ function showAuthError(t){$('authError').textContent=t;$('authError').classList.
 async function logout(){if(realtimeChannel)await sb.removeChannel(realtimeChannel);await sb.auth.signOut();currentConversation=null}
 
 let gaBadgeTimer=null;
-function gaMessageToast(){
- let t=document.getElementById('gaMessageToast');
- if(t)t.remove();
- t=document.createElement('button'); t.id='gaMessageToast'; t.type='button';
- t.innerHTML='<span class="gaToastIcon">💬</span><span><b>Pesan baru</b><small>Anda menerima pesan baru</small></span><span class="gaToastClose">×</span>';
- t.onclick=()=>{t.remove();showPage('chat')};
- document.body.appendChild(t);
- setTimeout(()=>{if(t.isConnected)t.remove()},7000);
-}
 function gaSetBadge(selector,count){
  const el=document.querySelector(selector); if(!el)return;
  let b=el.querySelector('.gaUnreadBadge');
@@ -152,8 +143,9 @@ function startUnreadBadges(){
       const current=Number(nav?.querySelector('.gaUnreadBadge')?.textContent||0);
       gaSetBadge('.navbtn[data-page="chat"]',current+1);
       gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',current+1);
-      gaMessageToast();
-      setTimeout(refreshUnreadBadges,300);
+      // Do not show a toast: the red unread counter is the persistent indicator.
+      // Reconcile only after the user opens the conversation, never immediately.
+
     }catch(e){console.warn('message realtime badge:',e);refreshUnreadBadges()}
   })
   .subscribe();
