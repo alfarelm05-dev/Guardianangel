@@ -226,3 +226,169 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   header #userArea .primary,header #userArea .ghost{max-width:72px!important;padding-left:8px!important;padding-right:8px!important}
 }
 </style>
+
+(function(){
+  function normalizeMobileHeader(){
+    const header=document.querySelector('header');
+    if(!header) return;
+    const actions=header.querySelector('.topActions');
+    if(actions){
+      const home=actions.querySelector('.iconBtn[aria-label="Beranda"]');
+      if(home) home.style.display='none';
+      const ua=actions.querySelector('#userArea');
+      if(ua){
+        const btn=ua.querySelector('button');
+        if(btn){
+          const clone=btn.cloneNode(true);
+          ua.replaceChildren(clone);
+        }
+      }
+    }
+  }
+  normalizeMobileHeader();
+  const old=window.__gaHeaderObserver;
+  if(old) old.disconnect();
+  window.__gaHeaderObserver=new MutationObserver(()=>normalizeMobileHeader());
+  window.__gaHeaderObserver.observe(document.body,{childList:true,subtree:true});
+})();
+<style id="ga-mobile-header-final">
+@media (max-width:760px){
+  html,body{overflow-x:hidden!important}
+  header{
+    box-sizing:border-box!important;
+    width:100%!important;
+    height:70px!important;
+    min-height:70px!important;
+    max-height:70px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:0!important;
+    padding:8px 10px!important;
+    overflow:hidden!important;
+    border-radius:0 0 18px 18px!important;
+  }
+  header .brand{
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex:1 1 auto!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:54px!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:8px!important;
+    overflow:hidden!important;
+  }
+  header .brandMark{
+    box-sizing:border-box!important;
+    display:block!important;
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    flex:0 0 44px!important;
+    padding:2px!important;
+    border-radius:50%!important;
+    overflow:hidden!important;
+  }
+  header .brand>div:not(.brandMark){
+    min-width:0!important;
+    max-width:120px!important;
+    overflow:hidden!important;
+  }
+  header .brandName{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    font-family:Georgia,serif!important;
+    font-size:17px!important;
+    line-height:1.1!important;
+    letter-spacing:-.3px!important;
+  }
+  header .brandTag{display:none!important}
+  header .topSearch{display:none!important}
+  header .topActions{
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex:0 0 auto!important;
+    width:auto!important;
+    max-width:none!important;
+    height:54px!important;
+    margin:0!important;
+    padding:0!important;
+    gap:3px!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    overflow:visible!important;
+    white-space:nowrap!important;
+  }
+  header .topActions>.iconBtn{
+    box-sizing:border-box!important;
+    display:grid!important;
+    place-items:center!important;
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+    flex:0 0 34px!important;
+    padding:0!important;
+    margin:0!important;
+    border-radius:11px!important;
+    color:#fff!important;
+  }
+  header .topActions>.iconBtn:first-child{display:none!important}
+  header #userArea{
+    box-sizing:border-box!important;
+    display:block!important;
+    width:68px!important;
+    min-width:68px!important;
+    max-width:68px!important;
+    height:36px!important;
+    margin:0 0 0 3px!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  header #userArea button{
+    box-sizing:border-box!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:68px!important;
+    min-width:68px!important;
+    max-width:68px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+    padding:0 8px!important;
+    border-radius:12px!important;
+    font-size:9px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    color:#fff!important;
+    background:rgba(255,255,255,.13)!important;
+    border:1px solid rgba(255,255,255,.25)!important;
+    box-shadow:none!important;
+  }
+  .layout{padding-top:12px!important}
+}
+@media (max-width:390px){
+  header{height:66px!important;min-height:66px!important;max-height:66px!important;padding:7px 8px!important}
+  header .brand{height:50px!important;gap:7px!important}
+  header .brandMark{width:40px!important;height:40px!important;min-width:40px!important;flex-basis:40px!important}
+  header .brand>div:not(.brandMark){max-width:105px!important}
+  header .brandName{font-size:15px!important}
+  header .topActions{height:50px!important;gap:2px!important}
+  header .topActions>.iconBtn{width:31px!important;min-width:31px!important;height:31px!important;min-height:31px!important;flex-basis:31px!important}
+  header #userArea,header #userArea button{width:61px!important;min-width:61px!important;max-width:61px!important}
+}
+</style>
