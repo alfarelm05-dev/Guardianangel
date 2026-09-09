@@ -465,3 +465,148 @@ boot();
     if(input){ input.accept="image/*,video/*"; input.multiple=true; input.click(); }
   };
 })();
+
+
+/* ===== Guardian Angel Messaging V3 — WhatsApp-inspired, Guardian identity ===== */
+(function(){
+  const style=document.createElement('style');
+  style.id='guardian-chat-v3';
+  style.textContent=`
+    .gaChatShell{display:grid;grid-template-columns:330px minmax(0,1fr);height:min(760px,calc(100vh - 150px));min-height:560px;background:#fff;border:1px solid #dfeae3;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(15,62,39,.10)}
+    .gaChatSidebar{border-right:1px solid #e2ebe6;background:#fff;display:flex;flex-direction:column;min-width:0}
+    .gaChatSideHead{padding:17px 16px 12px;border-bottom:1px solid #edf1ee}
+    .gaChatTitle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .gaChatTitle h1{font-family:Georgia,serif;font-size:22px;margin:0}
+    .gaChatIconBtn{width:38px;height:38px;border:0;border-radius:12px;background:#edf8f2;color:#087a45;display:grid;place-items:center;font-size:20px}
+    .gaChatSearch{position:relative;margin-top:11px}.gaChatSearch input{width:100%;height:42px;border:1px solid #dfe9e4;border-radius:13px;background:#f6f9f7;padding:0 12px 0 38px;outline:0}.gaChatSearch span{position:absolute;left:13px;top:10px;color:#718078}
+    .gaChatFilters{display:flex;gap:6px;margin-top:9px;overflow:auto;scrollbar-width:none}.gaChatFilters::-webkit-scrollbar{display:none}
+    .gaChatFilter{border:0;border-radius:999px;background:#f1f5f3;padding:7px 11px;font-size:10px;font-weight:800;color:#65736c;white-space:nowrap}.gaChatFilter.active{background:#dff4e8;color:#087a45}
+    .gaChatList{overflow:auto;flex:1}
+    .gaChatRow{width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;border:0;border-bottom:1px solid #f0f3f1;background:#fff;text-align:left;transition:.15s}
+    .gaChatRow:hover{background:#f6faf8}.gaChatRow.active{background:#eaf8f1}
+    .gaChatAvatar{width:48px;height:48px;min-width:48px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#e6f5ec;color:#087a45;font-weight:900;position:relative}.gaChatAvatar img{width:100%;height:100%;object-fit:cover}
+    .gaOnline{position:absolute;right:0;bottom:1px;width:12px;height:12px;border-radius:50%;background:#20b66d;border:2px solid #fff}
+    .gaChatRowBody{min-width:0;flex:1}.gaChatRowTop{display:flex;align-items:center;justify-content:space-between;gap:6px}.gaChatName{font-weight:850;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gaChatTime{font-size:8px;color:#849089;white-space:nowrap}.gaChatPreview{font-size:10px;color:#7b8881;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}.gaChatMeta{display:flex;align-items:center;gap:5px;margin-top:4px}.gaUnread{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#0b7a45;color:#fff;display:inline-grid;place-items:center;font-size:8px;font-weight:900}
+    .gaChatEmptyList{padding:35px 22px;text-align:center;color:#7a8780}.gaChatEmptyList .gaEmptyIcon{width:48px;height:48px;margin:0 auto 10px;border-radius:15px;background:#eaf8f1;color:#087a45;display:grid;place-items:center;font-size:22px}
+    .gaChatMain{min-width:0;display:flex;flex-direction:column;background:#efeae3}
+    .gaChatHeader{height:70px;display:flex;align-items:center;gap:9px;padding:9px 14px;background:rgba(255,255,255,.97);border-bottom:1px solid #dfe7e2;flex:0 0 70px}
+    .gaChatBack{display:none;border:0;background:transparent;color:#087a45;font-size:24px;padding:5px}.gaChatHeaderInfo{min-width:0;flex:1}.gaChatHeaderInfo b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gaChatHeaderInfo span{font-size:9px;color:#0a8b50}.gaChatHeaderActions{display:flex;gap:3px}.gaChatHeaderActions button{width:36px;height:36px;border:0;background:transparent;border-radius:10px;color:#53635b}.gaChatHeaderActions button:hover{background:#edf8f2;color:#087a45}
+    .gaChatMessages{flex:1;overflow:auto;padding:18px 7%;background-color:#efeae3;background-image:radial-gradient(rgba(10,70,40,.035) 1px,transparent 1px);background-size:17px 17px}
+    .gaDatePill{display:table;margin:0 auto 14px;padding:5px 10px;border-radius:999px;background:#f7f3eb;color:#6f776f;font-size:8px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .gaBubbleRow{display:flex;margin:3px 0}.gaBubbleRow.mine{justify-content:flex-end}.gaBubble{max-width:min(72%,480px);padding:7px 9px 5px;border-radius:8px 12px 12px 12px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,.08);position:relative}.gaBubbleRow.mine .gaBubble{background:#d9fdd3;border-radius:12px 8px 12px 12px}.gaBubbleText{font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.gaBubbleFoot{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:2px;font-size:8px;color:#7b827d}.gaTicks{color:#087a45;font-size:10px;letter-spacing:-3px;padding-right:2px}
+    .gaChatWelcome{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#68766e}.gaChatWelcomeIcon{width:74px;height:74px;border-radius:24px;background:linear-gradient(145deg,#e5f8ed,#c9eed9);color:#087a45;display:grid;place-items:center;font-size:34px;box-shadow:0 12px 30px rgba(8,122,69,.10);margin-bottom:14px}.gaChatWelcome h2{font-family:Georgia,serif;color:#203229;margin:0 0 6px;font-size:24px}.gaChatWelcome p{font-size:11px;max-width:320px;margin:0 0 15px;line-height:1.55}
+    .gaComposer{display:flex;align-items:flex-end;gap:7px;padding:9px 11px;background:#f5f5f5;border-top:1px solid #dfe5e1}.gaComposer button{width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:#627069;display:grid;place-items:center;font-size:18px}.gaComposer button:hover{background:#e6eee9;color:#087a45}.gaComposer textarea{flex:1;min-width:0;max-height:120px;min-height:40px;resize:none;border:0;outline:0;border-radius:20px;padding:11px 14px;background:#fff;font-size:13px;line-height:1.4}.gaSend{background:#087a45!important;color:#fff!important}.gaSend:hover{background:#075f39!important}
+    .gaChatMobileOnly{display:none}
+    @media(max-width:760px){
+      .gaChatShell{display:block;height:calc(100vh - 155px);min-height:520px;border-radius:18px}
+      .gaChatSidebar{height:100%;border-right:0}.gaChatMain{display:none;height:100%}.gaChatShell.ga-conversation-open .gaChatSidebar{display:none}.gaChatShell.ga-conversation-open .gaChatMain{display:flex}
+      .gaChatBack{display:block}.gaChatMessages{padding:14px 3%}.gaBubble{max-width:86%}.gaChatHeader{height:62px;flex-basis:62px}.gaChatRow{padding:12px 11px}.gaChatAvatar{width:50px;height:50px;min-width:50px}.gaChatSideHead{padding:14px 12px 10px}
+    }
+    @media(min-width:761px){.gaChatShell:not(.ga-has-conversation) .gaChatMain{background:#f8fbf9}}
+  `;
+  document.head.appendChild(style);
+
+  function gaTime(value){try{return new Date(value).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}catch(e){return ''}}
+  function gaDate(value){try{return new Date(value).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}catch(e){return ''}}
+  function gaAvatar(p,cls='gaChatAvatar'){return '<div class="'+cls+'">'+(p?.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':initials(p?.name||'Pengguna'))+'<span class="gaOnline"></span></div>'}
+
+  window.gaChatState={query:'',filter:'all'};
+
+  window.renderChat=async function(){
+    if(!user){return}
+    if(realtimeChannel){try{await sb.removeChannel(realtimeChannel)}catch(e){}realtimeChannel=null}
+    const {data:members,error:memberError}=await sb.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
+    if(memberError){$('main').innerHTML=msg(memberError.message,'error');return}
+    const convIds=[...(members||[])].map(x=>x.conversation_id);
+    const {data:allMembers,error:allError}=convIds.length?await sb.from('conversation_members').select('conversation_id,user_id').in('conversation_id',convIds):{data:[],error:null};
+    if(allError){$('main').innerHTML=msg(allError.message,'error');return}
+    const others=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];
+    const {data:pub,error:pubError}=others.length?await sb.from('public_profiles').select('id,name,avatar_url').in('id',others):{data:[],error:null};
+    if(pubError){$('main').innerHTML=msg(pubError.message,'error');return}
+    const profiles=Object.fromEntries((pub||[]).map(x=>[x.id,x]));
+    const convMap={};
+    (allMembers||[]).forEach(m=>{if(!convMap[m.conversation_id])convMap[m.conversation_id]=[];convMap[m.conversation_id].push(m.user_id)});
+    const conversations=Object.entries(convMap).map(([id,ids])=>{
+      const otherId=ids.find(x=>x!==user.id); return {id,otherId,profile:profiles[otherId]||{name:'Percakapan'}};
+    });
+    let latest={};
+    if(convIds.length){
+      const {data:msgs}=await sb.from('messages').select('id,conversation_id,sender_id,body,status,created_at').in('conversation_id',convIds).order('created_at',{ascending:false}).limit(500);
+      (msgs||[]).forEach(m=>{if(!latest[m.conversation_id])latest[m.conversation_id]=m});
+    }
+    const query=(window.gaChatState.query||'').toLowerCase().trim();
+    const filtered=conversations.filter(c=>!query||String(c.profile.name||'').toLowerCase().includes(query));
+    if(currentConversation && !conversations.some(c=>c.id===currentConversation)) currentConversation=null;
+    const selected=conversations.find(c=>c.id===currentConversation)||null;
+    $('main').innerHTML=`
+      <section class="gaChatShell ${selected?'ga-has-conversation ga-conversation-open':''}">
+        <aside class="gaChatSidebar">
+          <div class="gaChatSideHead">
+            <div class="gaChatTitle"><h1>Pesan</h1><button class="gaChatIconBtn" onclick="currentPage='friends';showPage('friends')" aria-label="Pesan baru">＋</button></div>
+            <div class="muted" style="font-size:10px;margin-top:2px">Percakapan pribadi yang aman dan saling menguatkan.</div>
+            <div class="gaChatSearch"><span>⌕</span><input value="${esc(window.gaChatState.query||'')}" placeholder="Cari percakapan..." oninput="window.gaChatState.query=this.value;renderChat()"></div>
+            <div class="gaChatFilters"><button class="gaChatFilter active">Semua</button><button class="gaChatFilter">Belum dibaca</button><button class="gaChatFilter">Arsip</button></div>
+          </div>
+          <div class="gaChatList">
+            ${filtered.length?filtered.map(c=>{
+              const m=latest[c.id]; const preview=m?(m.sender_id===user.id?'Anda: ':'')+String(m.body||''):'Belum ada pesan';
+              return '<button class="gaChatRow '+(c.id===currentConversation?'active':'')+'" onclick="selectConversation(\''+c.id+'\')">'+gaAvatar(c.profile)+'<div class="gaChatRowBody"><div class="gaChatRowTop"><span class="gaChatName">'+esc(c.profile.name||'Pengguna')+'</span><span class="gaChatTime">'+(m?gaTime(m.created_at):'')+'</span></div><div class="gaChatPreview">'+esc(preview)+'</div></div></button>';
+            }).join(''):'<div class="gaChatEmptyList"><div class="gaEmptyIcon">♡</div><b>Belum ada percakapan</b><p style="font-size:10px;line-height:1.5">Temukan Teman Seiman lalu tekan “Sapa” untuk memulai percakapan.</p><button class="primary" onclick="currentPage=\'friends\';showPage(\'friends\')">Temukan Teman Seiman</button></div>'}
+          </div>
+        </aside>
+        <section class="gaChatMain">
+          ${selected?gaConversationHTML(selected):'<div class="gaChatWelcome"><div class="gaChatWelcomeIcon">✦</div><h2>Pesan Guardian Angel</h2><p>Pilih percakapan di samping untuk melanjutkan obrolan, atau temukan Teman Seiman untuk memulai koneksi baru.</p><button class="primary" onclick="currentPage=\'friends\';showPage(\'friends\')">Temukan Teman Seiman</button></div>'}
+        </section>
+      </section>`;
+    if(selected){await loadMessages();subscribeMessages()}
+  };
+
+  function gaConversationHTML(c){
+    return '<header class="gaChatHeader"><button class="gaChatBack" onclick="backToChatList()" aria-label="Kembali">‹</button>'+
+      gaAvatar(c.profile)+
+      '<div class="gaChatHeaderInfo"><b>'+esc(c.profile.name||'Pengguna')+'</b><span>● Terhubung di Guardian Angel</span></div>'+
+      '<div class="gaChatHeaderActions"><button onclick="viewPublicProfile(\''+c.otherId+'\')" aria-label="Profil">♙</button><button onclick="alert(\'Fitur panggilan akan ditambahkan setelah modul komunikasi suara tersedia.\')" aria-label="Panggilan">☎</button><button onclick="alert(\'Pengaturan percakapan Guardian Angel.\')" aria-label="Menu">⋮</button></div></header>'+
+      '<div id="messageList" class="gaChatMessages"><div class="gaDatePill">Percakapan Guardian Angel</div></div>'+
+      '<div class="gaComposer"><button onclick="insertChatEmoji()" aria-label="Emoji">☺</button><textarea id="messageText" rows="1" placeholder="Ketik pesan..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea><button class="gaSend" onclick="sendMessage()" aria-label="Kirim">➤</button></div>';
+  }
+
+  window.backToChatList=function(){currentConversation=null;renderChat()};
+  window.insertChatEmoji=function(){const el=$('messageText');if(!el)return;el.value+=(el.value?' ':'')+'🙏';el.focus()};
+  window.selectConversation=async function(id){currentConversation=id;await renderChat()};
+
+  window.loadMessages=async function(){
+    if(!currentConversation)return;
+    const {data,error}=await sb.from('messages').select('id,sender_id,body,status,created_at').eq('conversation_id',currentConversation).order('created_at');
+    if(error){const box=$('messageList');if(box)box.innerHTML=msg(error.message,'error');return}
+    cache.messages=data||[];
+    const ids=[...new Set(cache.messages.map(x=>x.sender_id))];
+    const {data:pub}=ids.length?await sb.from('public_profiles').select('id,name').in('id',ids):{data:[]};
+    const names=Object.fromEntries((pub||[]).map(x=>[x.id,x.name]));
+    const box=$('messageList');if(!box)return;
+    if(!cache.messages.length){box.innerHTML='<div class="gaDatePill">Belum ada pesan • Mulai dengan sapaan yang baik 🙏</div>';return}
+    let lastDay='';
+    box.innerHTML=cache.messages.map(m=>{
+      const day=gaDate(m.created_at);const dateMark=day!==lastDay?'<div class="gaDatePill">'+esc(day)+'</div>':'';lastDay=day;
+      const mine=m.sender_id===user.id;const ticks=mine?'<span class="gaTicks">'+(m.status==='read'?'✓✓':'✓')+'</span>':'';
+      return dateMark+'<div class="gaBubbleRow '+(mine?'mine':'')+'"><div class="gaBubble"><div class="gaBubbleText">'+esc(m.body||'')+'</div><div class="gaBubbleFoot">'+gaTime(m.created_at)+ticks+'</div></div></div>';
+    }).join('');
+    box.scrollTop=box.scrollHeight;
+  };
+
+  window.sendMessage=async function(){
+    const input=$('messageText');const body=input?.value.trim();
+    if(!body||!currentConversation)return;
+    const mod=await moderateText(body);
+    if(mod.level>=4)return alert('Pesan ditolak karena pelanggaran berat.');
+    if(mod.level>=2&&!confirm('Pesan ini akan masuk pemeriksaan moderasi. Tetap kirim?'))return;
+    const {error}=await sb.from('messages').insert({conversation_id:currentConversation,sender_id:user.id,body});
+    if(error)return alert(error.message);
+    input.value='';input.style.height='40px';await loadMessages();
+  };
+
+  window.subscribeMessages=function(){
+    if(!currentConversation)return;
+    if(realtimeChannel)sb.removeChannel(realtimeChannel);
+    realtimeChannel=sb.channel('guardian-chat-v3-'+currentConversation).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'conversation_id=eq.'+currentConversation},()=>loadMessages()).subscribe();
+  };
+})();
