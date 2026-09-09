@@ -28,7 +28,7 @@ async function afterAuth(){
  }
  $('userArea').innerHTML=`<span class="muted">${esc(profile?.name||user.email||'Pengguna')}</span> <button class="ghost" onclick="logout()">Keluar</button>`;
  if(await isAdmin()) $('adminNav').classList.remove('hidden'); else $('adminNav').classList.add('hidden');
- bindNav(); showPage(currentPage);
+ bindNav(); showPage(currentPage); startUnreadBadges();
 }
 async function loadProfile(){
  profile=null;
