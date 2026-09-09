@@ -126,7 +126,7 @@ async function refreshUnreadBadges(){
  }catch(e){console.warn('message badge:',e)}
 }
 function startUnreadBadges(){
- refreshUnreadBadges(); if(gaBadgeTimer)clearInterval(gaBadgeTimer); gaBadgeTimer=setInterval(refreshUnreadBadges,12000);
+ refreshUnreadBadges(); if(gaBadgeTimer)clearInterval(gaBadgeTimer); gaBadgeTimer=null;
  if(window.__gaBadgeChannel)sb.removeChannel(window.__gaBadgeChannel);
  window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
   .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
@@ -140,7 +140,7 @@ function startUnreadBadges(){
       // optimistically so it appears at once, then reconcile with Supabase.
       const nav=document.querySelector('.navbtn[data-page="chat"]');
       const top=document.querySelector('.topActions .iconBtn[aria-label="Pesan"]');
-      const current=Number(nav?.querySelector('.gaUnreadBadge')?.textContent||0);
+      const raw=nav?.querySelector('.gaUnreadBadge')?.textContent||'0'; const current=raw==='99+'?99:Number(raw)||0;
       gaSetBadge('.navbtn[data-page="chat"]',current+1);
       gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',current+1);
       // Do not show a toast: the red unread counter is the persistent indicator.
