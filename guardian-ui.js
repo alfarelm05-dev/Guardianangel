@@ -113,3 +113,138 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   apply();
   new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
 })();
+
+
+<style id="guardian-mobile-reference-v4">
+@media (max-width:760px){
+  /* Phone-first reference layout */
+  body{
+    background:linear-gradient(180deg,#f4faf7 0%,#eef6f2 48%,#f7faf8 100%)!important;
+    color:#123b2b!important;
+    padding-bottom:96px!important;
+  }
+  header{
+    position:sticky!important;top:0!important;z-index:500!important;
+    height:82px!important;min-height:82px!important;max-height:82px!important;
+    padding:8px 14px!important;
+    background:linear-gradient(135deg,#087b47 0%,#087b47 60%,#0a9657 100%)!important;
+    border:0!important;border-radius:0 0 24px 24px!important;
+    box-shadow:0 8px 26px rgba(6,77,50,.18)!important;
+  }
+  header .brand{flex:1 1 auto!important;min-width:0!important;height:66px!important;gap:10px!important}
+  header .brandMark{
+    width:52px!important;height:52px!important;min-width:52px!important;flex-basis:52px!important;
+    border-radius:50%!important;padding:2px!important;background:#075d39!important;
+    border:2px solid rgba(255,239,169,.9)!important;
+    box-shadow:0 0 0 3px rgba(255,255,255,.12),0 8px 18px rgba(0,0,0,.18)!important;
+  }
+  header .brand>div:last-child{max-width:165px!important}
+  header .brandName{
+    color:#fff!important;font-family:Georgia,serif!important;font-size:20px!important;
+    font-weight:900!important;line-height:1!important;white-space:nowrap!important;
+  }
+  header .brandTag{display:none!important}
+  header .topSearch{display:none!important}
+  header .topActions{height:66px!important;gap:5px!important;flex:0 0 auto!important}
+  header .topActions>.iconBtn:first-child{display:none!important}
+  header .topActions>.iconBtn{
+    display:grid!important;place-items:center!important;width:38px!important;height:38px!important;
+    min-width:38px!important;flex-basis:38px!important;color:#fff!important;
+    border-radius:12px!important;background:rgba(255,255,255,.06)!important;
+  }
+  header #userArea{
+    width:68px!important;min-width:68px!important;max-width:68px!important;height:38px!important;
+    margin-left:2px!important;overflow:hidden!important;
+  }
+  header #userArea>*{display:none!important}
+  header #userArea button{
+    display:flex!important;width:68px!important;min-width:68px!important;height:38px!important;
+    align-items:center!important;justify-content:center!important;padding:0 8px!important;
+    border-radius:13px!important;font-size:10px!important;color:#fff!important;
+    background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.25)!important;
+  }
+  .layout{
+    width:100%!important;display:block!important;margin:0!important;
+    padding:14px 14px 112px!important;
+  }
+  .layout>nav{display:none!important}
+  main{width:100%!important;max-width:none!important}
+  .homeHero{
+    margin:0 0 18px!important;padding:18px!important;min-height:164px!important;
+    border-radius:22px!important;
+    background:linear-gradient(135deg,#ffffff 0%,#effaf4 58%,#dff4e9 100%)!important;
+    border:1px solid #cfe8da!important;
+    box-shadow:0 12px 30px rgba(14,75,48,.09)!important;
+  }
+  .homeHero .welcome{min-height:128px!important;align-items:center!important;gap:13px!important}
+  .welcomeAvatar{
+    width:64px!important;height:64px!important;min-width:64px!important;flex-basis:64px!important;
+    border-radius:50%!important;padding:2px!important;background:#fff!important;
+    box-shadow:0 4px 14px rgba(8,122,69,.16)!important;
+  }
+  .welcomeName{font-family:Georgia,serif!important;font-size:20px!important;line-height:1.2!important;color:#095f3b!important}
+  .quote{font-size:11px!important;line-height:1.5!important;margin-top:5px!important}
+  .todayCard{display:none!important}
+  .sectionHead{
+    margin:18px 2px 9px!important;align-items:center!important;
+    border-bottom:1px solid rgba(12,105,65,.08)!important;padding-bottom:8px!important;
+  }
+  .sectionHead h3{
+    font-family:Georgia,serif!important;font-size:20px!important;color:#114d39!important;
+  }
+  .sectionDesc{font-size:11px!important;line-height:1.4!important}
+  .stories{
+    gap:12px!important;padding:2px 0 9px!important;
+    overflow-x:auto!important;scrollbar-width:none!important;
+  }
+  .story{
+    width:136px!important;min-width:136px!important;height:194px!important;flex-basis:136px!important;
+    border-radius:21px!important;box-shadow:0 10px 22px rgba(11,70,45,.13)!important;
+  }
+  .story.add{padding:14px!important;background:linear-gradient(160deg,#fffdf7,#effaf3)!important;border:1px solid #e2d4a9!important}
+  .story.add:before{top:16px!important;left:16px!important;width:42px!important;height:42px!important;border-radius:14px!important;font-size:28px!important}
+  .story.add:after{top:67px!important;left:16px!important;font-size:10px!important}
+  .story.add>div{left:16px!important;right:12px!important;bottom:14px!important;font-size:17px!important;line-height:1.45!important}
+  .storyContent{padding:12px!important;font-size:13px!important}
+  .storyContent small{font-size:10px!important}
+  .composerCard{
+    padding:16px!important;margin-top:2px!important;border-radius:22px!important;
+    box-shadow:0 12px 30px rgba(14,75,48,.09)!important;border:1px solid #dcebe3!important;
+  }
+  .composerTop{gap:11px!important}
+  .composerTop .avatar{width:46px!important;height:46px!important;min-width:46px!important}
+  .composer textarea{
+    min-height:92px!important;margin-top:12px!important;padding:14px!important;
+    border-radius:17px!important;background:#f5f8f6!important;font-size:14px!important;
+  }
+  .composerTools{grid-template-columns:1fr 1fr 1.1fr!important;gap:8px!important;margin-top:9px!important}
+  .toolBtn{min-height:48px!important;border-radius:14px!important;font-size:11px!important}
+  .post{border-radius:22px!important;margin-bottom:14px!important}
+  .posthead{padding:15px 15px 0!important}
+  .postbody{padding:0 15px!important;font-size:14px!important}
+  .media{max-height:400px!important}
+  .layout:after{
+    content:"";display:block;height:6px;
+  }
+  .ga-mobile-nav{
+    position:fixed!important;left:10px!important;right:10px!important;bottom:9px!important;z-index:1000!important;
+    height:74px!important;padding:6px!important;border-radius:25px!important;
+    background:rgba(255,255,255,.98)!important;border:1px solid #dce9e1!important;
+    box-shadow:0 15px 38px rgba(13,52,36,.20)!important;
+    display:flex!important;align-items:center!important;justify-content:space-around!important;
+    backdrop-filter:blur(18px)!important;
+  }
+}
+@media(max-width:390px){
+  header{height:76px!important;min-height:76px!important;max-height:76px!important;padding:7px 10px!important}
+  header .brandMark{width:47px!important;height:47px!important;min-width:47px!important;flex-basis:47px!important}
+  header .brandName{font-size:18px!important}
+  header .topActions>.iconBtn{width:34px!important;height:34px!important;min-width:34px!important;flex-basis:34px!important}
+  header #userArea,header #userArea button{width:62px!important;min-width:62px!important;max-width:62px!important}
+  .layout{padding-left:10px!important;padding-right:10px!important}
+  .homeHero{padding:15px!important;min-height:152px!important}
+  .welcomeAvatar{width:58px!important;height:58px!important;min-width:58px!important;flex-basis:58px!important}
+  .welcomeName{font-size:18px!important}
+  .story{width:128px!important;min-width:128px!important;height:184px!important}
+}
+</style>
