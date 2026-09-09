@@ -87,6 +87,15 @@ function showAuthError(t){$('authError').textContent=t;$('authError').classList.
 async function logout(){if(realtimeChannel)await sb.removeChannel(realtimeChannel);await sb.auth.signOut();currentConversation=null}
 
 let gaBadgeTimer=null;
+function gaMessageToast(){
+ let t=document.getElementById('gaMessageToast');
+ if(t)t.remove();
+ t=document.createElement('button'); t.id='gaMessageToast'; t.type='button';
+ t.innerHTML='<span class="gaToastIcon">💬</span><span><b>Pesan baru</b><small>Anda menerima pesan baru</small></span><span class="gaToastClose">×</span>';
+ t.onclick=()=>{t.remove();showPage('chat')};
+ document.body.appendChild(t);
+ setTimeout(()=>{if(t.isConnected)t.remove()},7000);
+}
 function gaSetBadge(selector,count){
  const el=document.querySelector(selector); if(!el)return;
  let b=el.querySelector('.gaUnreadBadge');
@@ -118,7 +127,7 @@ function startUnreadBadges(){
  window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
   .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},(payload)=>{
-    if(payload?.new?.sender_id && payload.new.sender_id!==user.id) refreshUnreadBadges();
+    if(payload?.new?.sender_id && payload.new.sender_id!==user.id){ refreshUnreadBadges(); gaMessageToast(); }
   })
   .subscribe();
 }
