@@ -41,3 +41,76 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 `;
   document.head.appendChild(style);
 })();
+(function(){
+  const gaIcon = (kind) => {
+    const common='viewBox="0 0 24 24" aria-hidden="true"';
+    const icons={
+      home:'<path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/>',
+      prayer:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/><path d="M12 7v7M9 11h6"/>',
+      friends:'<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5"/><path d="M14 15.2c2.8-.4 5 .9 6 3.8"/>',
+      chat:'<path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-4-.9L4 20l1.4-3.4A7.2 7.2 0 0 1 4 11.5 7.5 7.5 0 0 1 12 4a7.5 7.5 0 0 1 8 7.5Z"/>',
+      bell:'<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
+      profile:'<circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c.7-4 3.2-6 7.5-6s6.8 2 7.5 6"/>'
+    };
+    return '<svg class="ga-nav-svg" '+common+'>'+icons[kind]+'</svg>';
+  };
+  const emblem = '<svg class="ga-emblem" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="gaG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23a968"/><stop offset=".55" stop-color="#087a45"/><stop offset="1" stop-color="#064d32"/></linearGradient><linearGradient id="gaGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".5" stop-color="#d8a84e"/><stop offset="1" stop-color="#fff2a6"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="url(#gaG)" stroke="url(#gaGold)" stroke-width="3"/><ellipse cx="50" cy="25" rx="18" ry="7" fill="none" stroke="url(#gaGold)" stroke-width="4"/><path d="M49 43c-7-12-20-18-29-16 7 7 12 15 13 23-7-3-14-2-20 2 10 4 18 10 23 18 5-9 10-17 13-27Z" fill="#fff" opacity=".96"/><path d="M51 43c7-12 20-18 29-16-7 7-12 15-13 23 7-3 14-2 20 2-10 4-18 10-23 18-5-9-10-17-13-27Z" fill="#fff" opacity=".96"/><path d="M50 38c-10 0-18 7-18 17 0 12 10 21 18 30 8-9 18-18 18-30 0-10-8-17-18-17Z" fill="none" stroke="#a9ed63" stroke-width="4"/><path d="M50 48v22M41 59h18" stroke="#fff7b0" stroke-width="4" stroke-linecap="round"/><path d="M34 78c6 4 11 9 16 16 5-7 10-12 16-16" fill="none" stroke="url(#gaGold)" stroke-width="3"/></svg>';
+  const style=document.createElement('style');
+  style.id='ga-final-mobile-shell';
+  style.textContent=`
+    :root{--ga-green:#087a45;--ga-deep:#064d32;--ga-mint:#eaf8f1;--ga-gold:#d8a84e}
+    .ga-emblem{width:100%;height:100%;display:block}
+    .brandMark{display:grid!important;place-items:center!important;overflow:visible!important}
+    .brandMark .icon{display:none!important}
+    .brandMark{background:linear-gradient(145deg,#0b8b50,#064d32)!important;border:2px solid rgba(216,168,78,.8)!important}
+    .ga-nav-svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .navIcon{font-size:0!important}
+    .navIcon .ga-nav-svg{width:22px;height:22px}
+    .mobileGreetingMark{width:54px;height:54px;flex:0 0 54px;border-radius:50%;padding:2px;background:linear-gradient(145deg,#fff4bd,#087a45);box-shadow:0 0 0 2px #fff,0 8px 20px rgba(8,122,69,.16)}
+    @media(max-width:760px){
+      body{background:linear-gradient(180deg,#eef8f3 0,#f5f8f6 38%,#f3f6f4 100%)!important;padding-bottom:94px!important}
+      header{height:76px!important;padding:0 14px!important;background:linear-gradient(135deg,#075d39,#087a45 62%,#0c9154)!important;border:0!important;border-radius:0 0 24px 24px!important;box-shadow:0 10px 28px rgba(6,77,50,.18)!important}
+      .brand{gap:9px!important;color:#fff!important}
+      .brandMark{width:48px!important;height:48px!important;flex-basis:48px!important;border-radius:50%!important;box-shadow:0 0 0 3px rgba(255,241,172,.18),0 7px 18px rgba(0,0,0,.15)!important}
+      .brandName{font-family:Georgia,serif!important;font-size:18px!important;color:#fff!important;letter-spacing:-.2px!important}
+      .brandTag{display:block!important;font-size:8px!important;color:rgba(255,255,255,.78)!important;letter-spacing:.7px!important}
+      .topActions{gap:2px!important}
+      .topActions>.iconBtn{color:#fff!important;width:38px!important;height:38px!important}
+      .topActions>.iconBtn:hover{background:rgba(255,255,255,.12)!important}
+      .topSearch{display:none!important}
+      #userArea{margin-left:2px!important}
+      #userArea .primary{min-height:36px!important;padding:7px 10px!important;border:1px solid rgba(255,255,255,.25)!important;background:rgba(255,255,255,.12)!important;box-shadow:none!important;color:#fff!important;border-radius:12px!important;font-size:9px!important}
+      #userArea .ghost{background:rgba(255,255,255,.12)!important;color:#fff!important;border-color:rgba(255,255,255,.2)!important;font-size:9px!important}
+      .layout{padding:12px 9px 100px!important}
+      .homeHero{border-radius:20px!important;margin-bottom:16px!important;box-shadow:0 12px 30px rgba(18,69,46,.09)!important}
+      .homeHero .welcome{gap:11px!important}
+      .welcomeAvatar{width:54px!important;height:54px!important;flex-basis:54px!important;border-radius:50%!important;padding:2px!important}
+      .welcomeName{font-size:17px!important}
+      .sectionHead h3{font-size:18px!important}
+      .sectionHead h3:before{width:5px!important;height:21px!important}
+      .story{min-width:112px!important;width:112px!important;height:168px!important;flex-basis:112px!important;border-radius:18px!important}
+      .story.add:before{content:"+"!important;font-size:24px!important}
+      .composerCard{border-radius:20px!important}
+      .composer textarea{min-height:82px!important;border-radius:16px!important}
+      .post{border-radius:20px!important}
+      .layout>nav{left:8px!important;right:8px!important;bottom:8px!important;padding:6px!important;border-radius:22px!important;border:1px solid rgba(216,168,78,.28)!important;background:rgba(255,255,255,.97)!important;box-shadow:0 16px 38px rgba(14,40,27,.2)!important}
+      .layout>nav .navbtn{min-height:57px!important;border-radius:16px!important}
+      .layout>nav .navIcon{width:31px!important;height:31px!important;border-radius:50%!important}
+      .layout>nav .navIcon .ga-nav-svg{width:20px!important;height:20px!important}
+      .layout>nav .navbtn.active .navIcon{background:linear-gradient(145deg,#0a9657,#075d39)!important;box-shadow:0 5px 13px rgba(8,122,69,.2)!important}
+      .layout>nav .navbtn.active{background:linear-gradient(145deg,#edf9f3,#fffaf0)!important}
+      .navLabel{font-weight:800!important;font-size:8px!important}
+    }
+    @media(max-width:380px){.brandName{font-size:16px!important}.brandTag{font-size:7px!important}.brandMark{width:44px!important;height:44px!important;flex-basis:44px!important}.topActions>.iconBtn{width:34px!important}}
+  `;
+  document.head.appendChild(style);
+  function apply(){
+    const mark=document.querySelector('.brandMark'); if(mark&&!mark.querySelector('.ga-emblem')) mark.innerHTML=emblem;
+    const wa=document.querySelector('.welcomeAvatar'); if(wa&&!wa.querySelector('.ga-emblem')){wa.innerHTML=emblem;wa.classList.add('mobileGreetingMark')}
+    const pa=document.querySelector('.profileAvatar'); if(pa&&!pa.querySelector('.ga-emblem')&&!pa.querySelector('img')){pa.innerHTML=emblem}
+    const map=['home','prayer','friends','chat','bell','profile'];
+    document.querySelectorAll('.navbtn').forEach((b,i)=>{if(i<map.length){const n=b.querySelector('.navIcon');if(n&&!n.querySelector('.ga-nav-svg'))n.innerHTML=gaIcon(map[i])}});
+  }
+  apply();
+  new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+})();
