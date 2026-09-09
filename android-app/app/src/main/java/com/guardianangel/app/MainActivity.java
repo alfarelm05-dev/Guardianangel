@@ -27,7 +27,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class MainActivity extends AppCompatActivity {
-    static final String URL = "https://guardian-angel-mvp-03-supabase-connected-online-v5-7jwdx8wjv.vercel.app/";
+    static final String URL = "https://guardian-angel-mvp-03-supabase-conn.vercel.app/";
     static final String CHANNEL_ID = "guardian_messages";
     WebView webView;
 
