@@ -117,6 +117,9 @@ function startUnreadBadges(){
  if(window.__gaBadgeChannel)sb.removeChannel(window.__gaBadgeChannel);
  window.__gaBadgeChannel=sb.channel('guardian-unread-'+user.id)
   .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+user.id},refreshUnreadBadges)
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},(payload)=>{
+    if(payload?.new?.sender_id && payload.new.sender_id!==user.id) refreshUnreadBadges();
+  })
   .subscribe();
 }
 function bindNav(){document.querySelectorAll('.navbtn').forEach(b=>{b.onclick=()=>{currentPage=b.dataset.page;document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');showPage(currentPage)}})}
