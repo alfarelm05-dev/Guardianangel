@@ -116,7 +116,8 @@ async function refreshUnreadBadges(){
   let count=0;
   if(ids.length){
    const q=await sb.from('messages').select('id',{count:'exact',head:true}).in('conversation_id',ids).neq('sender_id',user.id).is('read_at',null);
-   count=q.count||0;
+   if(q.error){ console.warn('message unread query:',q.error); }
+   count=Number(q.count)||0;
   }
   gaSetBadge('.navbtn[data-page="chat"]',count); gaSetBadge('.topActions .iconBtn[aria-label="Pesan"]',count);
  }catch(e){console.warn('message badge:',e)}
