@@ -476,3 +476,35 @@ header{background:rgba(255,252,244,.96)!important;border-bottom:1px solid rgba(2
 .stories .story.add>div{position:relative!important;inset:auto!important;margin:0!important;text-align:center!important;font-size:14px!important;line-height:1.55!important;color:#80632a!important}
 @media(max-width:760px){.stories{grid-auto-columns:142px!important;grid-template-rows:202px!important;gap:12px!important;padding:4px 2px 12px!important}.stories .story,.story{width:142px!important;min-width:142px!important;height:202px!important;min-height:202px!important;border-radius:18px!important}.stories .story:not(.add) img,.story:not(.add) img,.stories .story:not(.add) .storyImage,.story:not(.add) .storyImage{height:96px!important;min-height:96px!important;flex-basis:96px!important;border-radius:17px 17px 0 0!important}.stories .story:not(.add) .storyContent,.story:not(.add) .storyContent{padding:12px 12px 13px!important}.storyAuthor{font-size:11px!important}.storyText,.storyMessage,.storyCaption{font-size:11px!important;line-height:1.5!important;word-spacing:1px!important}.storyDate{font-size:9px!important}}
 `;document.head.appendChild(s)})();
+
+/* ===== FINAL STORY + TODAY POLISH v8 ===== */
+(function(){const s=document.createElement('style');s.id='guardian-story-final-v8';s.textContent=`
+/* The story media class is .storyMedia in the actual renderer. Keep media and copy completely separate. */
+.stories .story.community{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding:0!important;background:#fffdf8!important;border:1px solid #decda8!important;border-radius:20px!important;overflow:hidden!important;color:#403722!important;text-align:left!important}
+.stories .story.community .storyMedia{display:block!important;position:relative!important;width:100%!important;height:112px!important;min-height:112px!important;max-height:112px!important;object-fit:cover!important;margin:0!important;border:0!important;border-radius:19px 19px 0 0!important;background:#eee7d8!important;flex:0 0 112px!important}
+.stories .story.community video.storyMedia{object-fit:cover!important}
+.stories .story.community .storyShade{display:none!important;position:static!important}
+.stories .story.community .storyContent{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;width:auto!important;height:auto!important;min-height:91px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:0!important;padding:12px 13px 13px!important;background:#fffdf8!important;border-top:1px solid #eee5d2!important;color:#403722!important;text-shadow:none!important;flex:1 1 auto!important;overflow:hidden!important}
+.stories .story.community .storyContent .avatar{width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;border:2px solid #e3c36f!important;margin:0 0 7px!important;align-self:flex-start!important}
+.stories .story.community .storyContent>div:not(.avatar){font-family:Arial,sans-serif!important;font-size:12px!important;font-weight:800!important;line-height:1.25!important;color:#3e382b!important;margin:0 0 5px!important;white-space:nowrap!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.stories .story.community .storyContent small{font-family:Arial,sans-serif!important;font-size:11px!important;font-weight:500!important;line-height:1.48!important;color:#766b58!important;white-space:normal!important;display:block!important;margin:0!important;max-height:34px!important;overflow:hidden!important}
+/* text-only stories remain warm gold/ivory, never green */
+.stories .story.textStory .storyContent{background:linear-gradient(160deg,#fffaf0,#f7e9c9)!important}
+/* Create Story: clean and centered */
+.stories .story.add{width:156px!important;min-width:156px!important;background:linear-gradient(160deg,#fffdf9,#fbf2df)!important;border:1px dashed #c99a32!important;border-radius:20px!important;box-shadow:none!important;text-align:center!important}
+.stories .story.add>div{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0!important;padding:0!important;color:#7d6127!important}
+.stories .story.add>div>div{margin:0!important;font-size:14px!important;line-height:1.25!important;font-weight:850!important;color:#8f691d!important}
+.stories .story.add small{font-size:11px!important;line-height:1.4!important;color:#91836d!important}
+/* Fix the welcome reminder: deliberate spacing between label and message */
+.todayCard{display:flex!important;align-items:center!important;gap:10px!important;padding:10px 14px!important;white-space:nowrap!important}
+.todayCard b{display:inline-flex!important;align-items:center!important;gap:5px!important;line-height:1.2!important;color:#9a6d1b!important;flex:0 0 auto!important}
+.todayCard span{display:inline-block!important;margin-left:2px!important;padding-left:10px!important;border-left:1px solid #e6d6b5!important;line-height:1.35!important;color:#4e4738!important;letter-spacing:.005em!important}
+@media(max-width:760px){
+.stories .story.community .storyMedia{height:96px!important;min-height:96px!important;max-height:96px!important;flex-basis:96px!important}
+.stories .story.community .storyContent{min-height:82px!important;padding:10px 11px 11px!important}
+.stories .story.community .storyContent .avatar{width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;margin-bottom:6px!important}
+.stories .story.community .storyContent>div:not(.avatar){font-size:11px!important;margin-bottom:4px!important}
+.stories .story.community .storyContent small{font-size:10px!important;line-height:1.45!important;max-height:30px!important}
+.todayCard{gap:7px!important;padding:8px 10px!important;white-space:normal!important}.todayCard b{font-size:11px!important}.todayCard span{padding-left:7px!important;font-size:11px!important}
+}
+`;document.head.appendChild(s)})();
