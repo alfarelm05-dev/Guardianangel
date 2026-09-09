@@ -81,3 +81,5 @@ public class MainActivity extends AppCompatActivity {
         else super.onBackPressed();
     }
 }
+
+// APK build includes native unread message badge support.
