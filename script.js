@@ -111,11 +111,12 @@ async function refreshUnreadBadges(){
   gaSetBadge('.navbtn[data-page="notifications"]',n.count||0); gaSetBadge('.topActions .iconBtn[aria-label="Notifikasi"]',n.count||0);
  }catch(e){console.warn('notification badge:',e)}
  try{
-  const {data:convs}=await sb.from('conversations').select('id').or('user1_id.eq.'+user.id+',user2_id.eq.'+user.id);
-  const ids=(convs||[]).map(x=>x.id);
+  const {data:members,error:memberError}=await sb.from('conversation_members').select('conversation_id').eq('user_id',user.id);
+  const ids=(members||[]).map(x=>x.conversation_id);
   let count=0;
   if(ids.length){
-   const q=await sb.from('messages').select('id',{count:'exact',head:true}).in('conversation_id',ids).neq('sender_id',user.id).is('read_at',null);
+   // The current message schema uses status (not read_at). Treat messages not marked read as unread.
+   const q=await sb.from('messages').select('id',{count:'exact',head:true}).in('conversation_id',ids).neq('sender_id',user.id).neq('status','read');
    if(q.error){ console.warn('message unread query:',q.error); }
    count=Number(q.count)||0;
   }
