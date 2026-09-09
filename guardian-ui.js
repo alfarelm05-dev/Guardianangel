@@ -320,8 +320,8 @@ html.ga-admin-allowed #adminNav{display:flex!important}
       }
       const {data:{session}}=await adminClient.auth.getSession();
       if(!session?.user) return;
-      const {data,isAdminError}=await adminClient.rpc('is_admin');
-      if(!isAdminError && data===true) setAdminVisible(true);
+      const {data,error}=await adminClient.rpc('is_admin');
+      if(!error && data===true) setAdminVisible(true);
     }catch(e){
       setAdminVisible(false);
     }
