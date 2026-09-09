@@ -44,9 +44,26 @@ const PRODUCTION_URL='https://guardian-angel-mvp-03-supabase-conn.vercel.app';
 function authRedirect(){
   return window.location.origin + window.location.pathname;
 }
-function openAuth(){if(!sb){alert('Supabase belum dikonfigurasi.');return}$('authModal').classList.add('show');$('authError').classList.add('hidden');}
+let authMode='signin';
+function openAuth(mode='signin'){
+ if(!sb){alert('Supabase belum dikonfigurasi.');return}
+ authMode=mode==='signup'?'signup':'signin';
+ $('authModal').classList.add('show'); $('authError').classList.add('hidden'); updateAuthMode();
+}
 function closeAuth(){$('authModal').classList.remove('show')}
-function authValues(){return {email:$('authEmail').value.trim().toLowerCase(),password:$('authPassword').value}}
+function authValues(){return {name:($('authName')?.value||'').trim(),email:$('authEmail').value.trim().toLowerCase(),password:$('authPassword').value}}
+function updateAuthMode(){
+ const signup=authMode==='signup';
+ const title=$('authTitle'),help=$('authHelp'),kicker=$('authKicker'),primary=$('authPrimary'),mode=$('authModeBtn'),reset=$('authResetBtn');
+ document.querySelectorAll('.gaSignupOnly').forEach(el=>el.classList.toggle('hidden',!signup));
+ if(title)title.textContent=signup?'Buat akun Guardian Angel':'Masuk ke Guardian Angel';
+ if(kicker)kicker.textContent=signup?'SELAMAT DATANG DI KELUARGA KAMI':'SELAMAT DATANG';
+ if(help)help.textContent=signup?'Buat ruang kecil untuk berbagi, berdoa, menemukan teman seiman, dan bertumbuh bersama.':'Tempat menemukan saudara seiman, berbagi, berdoa, dan bertumbuh bersama.';
+ if(primary){primary.textContent=signup?'Buat akun':'Masuk';primary.onclick=signup?signUpEmail:signInEmail}
+ if(mode){mode.textContent=signup?'Sudah punya akun? Masuk':'Buat akun baru';mode.onclick=toggleAuthMode}
+ if(reset)reset.classList.toggle('hidden',signup);
+}
+function toggleAuthMode(){authMode=authMode==='signin'?'signup':'signin';$('authError').classList.add('hidden');updateAuthMode()}
 async function signInEmail(){
  if(!sb)return showAuthError('Supabase belum dikonfigurasikan.');
  const {email,password}=authValues();
@@ -58,15 +75,23 @@ async function signInEmail(){
 }
 async function signUpEmail(){
  if(!sb)return showAuthError('Supabase belum dikonfigurasikan.');
- const {email,password}=authValues();
+ const {name,email,password}=authValues();
+ if(!name)return showAuthError('Masukkan nama yang ingin ditampilkan.');
  if(!email||!password)return showAuthError('Masukkan email dan password.');
  if(password.length<6)return showAuthError('Password minimal 6 karakter.');
  $('authError').classList.add('hidden');
  const redirectTo=authRedirect();
- const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:redirectTo}});
+ const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:redirectTo,data:{name,display_name:name}}});
  if(error)return showAuthError(error.message);
- if(data.session){closeAuth();return;}
- showAuthError('Pendaftaran berhasil. Periksa email Anda untuk konfirmasi, lalu kembali ke Guardian Angel.');
+ if(data.user && !data.session){
+   showAuthError('Pendaftaran berhasil. Periksa email untuk konfirmasi, lalu kembali ke Guardian Angel.');
+   return;
+ }
+ if(data.user){
+   const {error:pe}=await sb.from('profiles').update({name}).eq('id',data.user.id);
+   if(pe)console.warn('Profil berhasil dibuat tetapi nama belum tersimpan:',pe.message);
+ }
+ closeAuth();
 }
 async function resetPassword(){
  if(!sb)return showAuthError('Supabase belum dikonfigurasikan.');
