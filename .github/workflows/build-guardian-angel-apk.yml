@@ -5,6 +5,10 @@ on:
   push:
     paths:
       - 'android-app/**'
+      - '.github/workflows/build-guardian-angel-apk.yml'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -16,11 +20,14 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build debug APK
+      - name: Build release APK
         working-directory: android-app
-        run: gradle assembleDebug --no-daemon
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+        run: gradle assembleRelease --no-daemon
+      - name: Publish APK
+        uses: softprops/action-gh-release@v2
         with:
-          name: guardian-angel-debug-apk
-          path: android-app/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: guardian-angel-apk-${{ github.run_number }}
+          name: Guardian Angel APK ${{ github.run_number }}
+          prerelease: false
+          files: android-app/app/build/outputs/apk/release/app-release.apk
+          generate_release_notes: false
