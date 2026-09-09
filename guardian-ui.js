@@ -42,353 +42,74 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   document.head.appendChild(style);
 })();
 (function(){
-  const gaIcon = (kind) => {
-    const common='viewBox="0 0 24 24" aria-hidden="true"';
-    const icons={
-      home:'<path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/>',
-      prayer:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/><path d="M12 7v7M9 11h6"/>',
-      friends:'<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5"/><path d="M14 15.2c2.8-.4 5 .9 6 3.8"/>',
-      chat:'<path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-4-.9L4 20l1.4-3.4A7.2 7.2 0 0 1 4 11.5 7.5 7.5 0 0 1 12 4a7.5 7.5 0 0 1 8 7.5Z"/>',
-      bell:'<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
-      profile:'<circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c.7-4 3.2-6 7.5-6s6.8 2 7.5 6"/>'
-    };
-    return '<svg class="ga-nav-svg" '+common+'>'+icons[kind]+'</svg>';
-  };
-  const emblem = '<svg class="ga-emblem" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="gaG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23a968"/><stop offset=".55" stop-color="#087a45"/><stop offset="1" stop-color="#064d32"/></linearGradient><linearGradient id="gaGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".5" stop-color="#d8a84e"/><stop offset="1" stop-color="#fff2a6"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="url(#gaG)" stroke="url(#gaGold)" stroke-width="3"/><ellipse cx="50" cy="25" rx="18" ry="7" fill="none" stroke="url(#gaGold)" stroke-width="4"/><path d="M49 43c-7-12-20-18-29-16 7 7 12 15 13 23-7-3-14-2-20 2 10 4 18 10 23 18 5-9 10-17 13-27Z" fill="#fff" opacity=".96"/><path d="M51 43c7-12 20-18 29-16-7 7-12 15-13 23 7-3 14-2 20 2-10 4-18 10-23 18-5-9-10-17-13-27Z" fill="#fff" opacity=".96"/><path d="M50 38c-10 0-18 7-18 17 0 12 10 21 18 30 8-9 18-18 18-30 0-10-8-17-18-17Z" fill="none" stroke="#a9ed63" stroke-width="4"/><path d="M50 48v22M41 59h18" stroke="#fff7b0" stroke-width="4" stroke-linecap="round"/><path d="M34 78c6 4 11 9 16 16 5-7 10-12 16-16" fill="none" stroke="url(#gaGold)" stroke-width="3"/></svg>';
-  const style=document.createElement('style');
-  style.id='ga-final-mobile-shell';
-  style.textContent=`
-    :root{--ga-green:#087a45;--ga-deep:#064d32;--ga-mint:#eaf8f1;--ga-gold:#d8a84e}
-    .ga-emblem{width:100%;height:100%;display:block}
-    .brandMark{display:grid!important;place-items:center!important;overflow:visible!important}
-    .brandMark .icon{display:none!important}
-    .brandMark{background:linear-gradient(145deg,#0b8b50,#064d32)!important;border:2px solid rgba(216,168,78,.8)!important}
-    .ga-nav-svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-    .navIcon{font-size:0!important}
-    .navIcon .ga-nav-svg{width:22px;height:22px}
-    .mobileGreetingMark{width:54px;height:54px;flex:0 0 54px;border-radius:50%;padding:2px;background:linear-gradient(145deg,#fff4bd,#087a45);box-shadow:0 0 0 2px #fff,0 8px 20px rgba(8,122,69,.16)}
+  const svg=(paths)=>'<svg class="ga-nav-svg" viewBox="0 0 24 24" aria-hidden="true">'+paths+'</svg>';
+  const icons=[
+    svg('<path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/>'),
+    svg('<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/><path d="M12 7v7M9 11h6"/>'),
+    svg('<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5"/><path d="M14 15.2c2.8-.4 5 .9 6 3.8"/>'),
+    svg('<path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-4-.9L4 20l1.4-3.4A7.2 7.2 0 0 1 4 11.5 7.5 7.5 0 0 1 12 4a7.5 7.5 0 0 1 8 7.5Z"/>'),
+    svg('<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>'),
+    svg('<circle cx="12" cy="8" r="3.5"/><path d="M4.5 21c.7-4 3.2-6 7.5-6s6.8 2 7.5 6"/>')
+  ];
+  const emblem='<svg class="ga-emblem" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#23a968"/><stop offset=".55" stop-color="#087a45"/><stop offset="1" stop-color="#064d32"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a8"/><stop offset=".5" stop-color="#d8a84e"/><stop offset="1" stop-color="#fff2a6"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="url(#g1)" stroke="url(#g2)" stroke-width="3"/><ellipse cx="50" cy="25" rx="18" ry="7" fill="none" stroke="url(#g2)" stroke-width="4"/><path d="M49 43c-7-12-20-18-29-16 7 7 12 15 13 23-7-3-14-2-20 2 10 4 18 10 23 18 5-9 10-17 13-27Z" fill="#fff"/><path d="M51 43c7-12 20-18 29-16-7 7-12 15-13 23 7-3 14-2 20 2-10 4-18 10-23 18-5-9-10-17-13-27Z" fill="#fff"/><path d="M50 38c-10 0-18 7-18 17 0 12 10 21 18 30 8-9 18-18 18-30 0-10-8-17-18-17Z" fill="none" stroke="#a9ed63" stroke-width="4"/><path d="M50 48v22M41 59h18" stroke="#fff7b0" stroke-width="4" stroke-linecap="round"/><path d="M34 78c6 4 11 9 16 16 5-7 10-12 16-16" fill="none" stroke="url(#g2)" stroke-width="3"/></svg>';
+  const css=document.createElement('style');
+  css.id='guardian-mobile-final-v3';
+  css.textContent=`
+    .ga-emblem{display:block;width:100%;height:100%}.ga-nav-svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
     @media(max-width:760px){
-      body{background:linear-gradient(180deg,#eef8f3 0,#f5f8f6 38%,#f3f6f4 100%)!important;padding-bottom:94px!important}
-      header{height:76px!important;padding:0 14px!important;background:linear-gradient(135deg,#075d39,#087a45 62%,#0c9154)!important;border:0!important;border-radius:0 0 24px 24px!important;box-shadow:0 10px 28px rgba(6,77,50,.18)!important}
-      .brand{gap:9px!important;color:#fff!important}
-      .brandMark{width:48px!important;height:48px!important;flex-basis:48px!important;border-radius:50%!important;box-shadow:0 0 0 3px rgba(255,241,172,.18),0 7px 18px rgba(0,0,0,.15)!important}
-      .brandName{font-family:Georgia,serif!important;font-size:18px!important;color:#fff!important;letter-spacing:-.2px!important}
-      .brandTag{display:block!important;font-size:8px!important;color:rgba(255,255,255,.78)!important;letter-spacing:.7px!important}
-      .topActions{gap:2px!important}
-      .topActions>.iconBtn{color:#fff!important;width:38px!important;height:38px!important}
-      .topActions>.iconBtn:hover{background:rgba(255,255,255,.12)!important}
-      .topSearch{display:none!important}
-      #userArea{margin-left:2px!important}
-      #userArea .primary{min-height:36px!important;padding:7px 10px!important;border:1px solid rgba(255,255,255,.25)!important;background:rgba(255,255,255,.12)!important;box-shadow:none!important;color:#fff!important;border-radius:12px!important;font-size:9px!important}
-      #userArea .ghost{background:rgba(255,255,255,.12)!important;color:#fff!important;border-color:rgba(255,255,255,.2)!important;font-size:9px!important}
-      .layout{padding:12px 9px 100px!important}
-      .homeHero{border-radius:20px!important;margin-bottom:16px!important;box-shadow:0 12px 30px rgba(18,69,46,.09)!important}
-      .homeHero .welcome{gap:11px!important}
-      .welcomeAvatar{width:54px!important;height:54px!important;flex-basis:54px!important;border-radius:50%!important;padding:2px!important}
-      .welcomeName{font-size:17px!important}
-      .sectionHead h3{font-size:18px!important}
-      .sectionHead h3:before{width:5px!important;height:21px!important}
-      .story{min-width:112px!important;width:112px!important;height:168px!important;flex-basis:112px!important;border-radius:18px!important}
-      .story.add:before{content:"+"!important;font-size:24px!important}
-      .composerCard{border-radius:20px!important}
-      .composer textarea{min-height:82px!important;border-radius:16px!important}
-      .post{border-radius:20px!important}
-      .layout>nav{left:8px!important;right:8px!important;bottom:8px!important;padding:6px!important;border-radius:22px!important;border:1px solid rgba(216,168,78,.28)!important;background:rgba(255,255,255,.97)!important;box-shadow:0 16px 38px rgba(14,40,27,.2)!important}
-      .layout>nav .navbtn{min-height:57px!important;border-radius:16px!important}
-      .layout>nav .navIcon{width:31px!important;height:31px!important;border-radius:50%!important}
+      html,body{overflow-x:hidden!important}
+      header{height:72px!important;min-height:72px!important;max-height:72px!important;width:100%!important;box-sizing:border-box!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;padding:8px 12px!important;gap:0!important;overflow:hidden!important;border-radius:0 0 20px 20px!important}
+      header .brand{display:flex!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;height:56px!important;align-items:center!important;gap:9px!important;overflow:hidden!important}
+      header .brandMark{display:grid!important;place-items:center!important;width:46px!important;height:46px!important;min-width:46px!important;flex:0 0 46px!important;padding:2px!important;border-radius:50%!important;overflow:hidden!important;background:#075d39!important;border:1px solid rgba(255,240,168,.65)!important}
+      header .brand>div:last-child{min-width:0!important;max-width:150px!important;overflow:hidden!important}
+      header .brandName{display:block!important;margin:0!important;padding:0!important;font-family:Georgia,serif!important;font-size:18px!important;line-height:1.05!important;color:#fff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+      header .brandTag{display:none!important}
+      header .topSearch{display:none!important}
+      header .topActions{display:flex!important;flex:0 0 auto!important;width:auto!important;height:56px!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;padding:0!important;flex-wrap:nowrap!important}
+      header .topActions>.iconBtn:first-child{display:none!important}
+      header .topActions>.iconBtn{display:grid!important;place-items:center!important;width:34px!important;height:34px!important;min-width:34px!important;flex:0 0 34px!important;margin:0!important;padding:0!important;border-radius:10px!important;color:#fff!important}
+      header #userArea{display:block!important;width:64px!important;min-width:64px!important;max-width:64px!important;height:36px!important;margin-left:2px!important;overflow:hidden!important}
+      header #userArea>*{display:none!important}
+      header #userArea button{display:flex!important;align-items:center!important;justify-content:center!important;width:64px!important;height:36px!important;min-width:64px!important;margin:0!important;padding:0 7px!important;border-radius:12px!important;font-size:9px!important;line-height:1!important;white-space:nowrap!important;color:#fff!important;background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.25)!important;box-shadow:none!important}
+      .layout{padding:12px 12px 104px!important}
+      .homeHero{margin-top:0!important;border-radius:20px!important}
+      .welcomeAvatar{width:58px!important;height:58px!important;min-width:58px!important;flex-basis:58px!important}
+      .sectionHead{margin-top:18px!important}
+      .storyRow{gap:10px!important;overflow-x:auto!important;padding-bottom:4px!important;scrollbar-width:none!important}
+      .storyRow::-webkit-scrollbar{display:none!important}
+      .story{width:112px!important;min-width:112px!important;height:174px!important;border-radius:19px!important}
+      .composerCard,.post{border-radius:20px!important}
+      .composer textarea{min-height:88px!important}
+      .layout>nav{position:fixed!important;left:10px!important;right:10px!important;bottom:9px!important;z-index:9999!important;height:68px!important;box-sizing:border-box!important;display:flex!important;align-items:stretch!important;gap:2px!important;padding:5px!important;border-radius:24px!important;background:rgba(255,255,255,.98)!important;border:1px solid rgba(216,168,78,.28)!important;box-shadow:0 14px 38px rgba(20,45,33,.20)!important;backdrop-filter:blur(16px)!important}
+      .layout>nav .navbtn{flex:1 1 0!important;min-width:0!important;min-height:0!important;height:58px!important;padding:4px 1px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;overflow:hidden!important}
+      .layout>nav .navIcon{width:31px!important;height:31px!important;min-width:31px!important;display:grid!important;place-items:center!important;border-radius:50%!important}
       .layout>nav .navIcon .ga-nav-svg{width:20px!important;height:20px!important}
-      .layout>nav .navbtn.active .navIcon{background:linear-gradient(145deg,#0a9657,#075d39)!important;box-shadow:0 5px 13px rgba(8,122,69,.2)!important}
-      .layout>nav .navbtn.active{background:linear-gradient(145deg,#edf9f3,#fffaf0)!important}
-      .navLabel{font-weight:800!important;font-size:8px!important}
+      .layout>nav .navbtn.active{background:#eef9f3!important}
+      .layout>nav .navbtn.active .navIcon{background:#087a45!important;color:#fff!important}
+      .layout>nav .navbtn span:not(.navIcon){font-size:8px!important;line-height:1!important;white-space:nowrap!important}
     }
-    @media(max-width:380px){.brandName{font-size:16px!important}.brandTag{font-size:7px!important}.brandMark{width:44px!important;height:44px!important;flex-basis:44px!important}.topActions>.iconBtn{width:34px!important}}
+    @media(max-width:390px){
+      header{height:68px!important;min-height:68px!important;max-height:68px!important;padding:7px 9px!important}
+      header .brandMark{width:42px!important;height:42px!important;min-width:42px!important;flex-basis:42px!important}
+      header .brandName{font-size:16px!important}
+      header .topActions{gap:2px!important}
+      header .topActions>.iconBtn{width:31px!important;height:31px!important;min-width:31px!important;flex-basis:31px!important}
+      header #userArea,header #userArea button{width:59px!important;min-width:59px!important;max-width:59px!important}
+      header #userArea button{height:34px!important}
+      .layout{padding-left:9px!important;padding-right:9px!important}
+    }
   `;
-  document.head.appendChild(style);
+  document.head.appendChild(css);
   function apply(){
-    const mark=document.querySelector('.brandMark'); if(mark&&!mark.querySelector('.ga-emblem')) mark.innerHTML=emblem;
-    const wa=document.querySelector('.welcomeAvatar'); if(wa&&!wa.querySelector('.ga-emblem')){wa.innerHTML=emblem;wa.classList.add('mobileGreetingMark')}
-    const pa=document.querySelector('.profileAvatar'); if(pa&&!pa.querySelector('.ga-emblem')&&!pa.querySelector('img')){pa.innerHTML=emblem}
-    const map=['home','prayer','friends','chat','bell','profile'];
-    document.querySelectorAll('.navbtn').forEach((b,i)=>{if(i<map.length){const n=b.querySelector('.navIcon');if(n&&!n.querySelector('.ga-nav-svg'))n.innerHTML=gaIcon(map[i])}});
+    const mark=document.querySelector('.brandMark');
+    if(mark && !mark.querySelector('.ga-emblem')) mark.innerHTML=emblem;
+    document.querySelectorAll('.navbtn').forEach((b,i)=>{
+      if(i<icons.length){
+        const n=b.querySelector('.navIcon');
+        if(n){n.innerHTML=icons[i];n.setAttribute('aria-hidden','true');}
+      }
+    });
   }
   apply();
   new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
 })();
-
-<style id="ga-final-header-fix">
-/* FINAL MOBILE HEADER — clean hierarchy, no crowding */
-@media(max-width:760px){
-  header{
-    height:68px!important;
-    min-height:68px!important;
-    padding:8px 11px!important;
-    gap:0!important;
-    border-radius:0 0 20px 20px!important;
-    overflow:hidden!important;
-    align-items:center!important;
-  }
-  header .brand{
-    min-width:0!important;
-    width:auto!important;
-    flex:1 1 auto!important;
-    max-width:calc(100% - 142px)!important;
-    gap:9px!important;
-    overflow:hidden!important;
-    align-items:center!important;
-  }
-  header .brandMark{
-    width:43px!important;
-    height:43px!important;
-    flex:0 0 43px!important;
-    border-radius:50%!important;
-    padding:2px!important;
-  }
-  header .brand>div:last-child{
-    min-width:0!important;
-    overflow:hidden!important;
-  }
-  header .brandName{
-    display:block!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    font-family:Georgia,serif!important;
-    font-size:17px!important;
-    line-height:1.05!important;
-    color:#fff!important;
-    letter-spacing:-.25px!important;
-  }
-  header .brandTag{display:none!important}
-  header .topActions{
-    flex:0 0 auto!important;
-    margin-left:7px!important;
-    gap:3px!important;
-    height:100%!important;
-    align-items:center!important;
-  }
-  header .topActions>.iconBtn{
-    width:35px!important;
-    height:35px!important;
-    flex:0 0 35px!important;
-    border-radius:11px!important;
-    color:#fff!important;
-  }
-  /* Beranda is already in bottom navigation; remove duplicate from header. */
-  header .topActions>.iconBtn:first-child{display:none!important}
-  header #userArea{
-    flex:0 0 auto!important;
-    max-width:78px!important;
-    min-width:0!important;
-    margin-left:1px!important;
-    overflow:hidden!important;
-    font-size:0!important;
-    display:flex!important;
-    align-items:center!important;
-  }
-  header #userArea .primary,
-  header #userArea .ghost{
-    min-width:0!important;
-    max-width:78px!important;
-    min-height:35px!important;
-    height:35px!important;
-    padding:6px 10px!important;
-    margin:0!important;
-    border-radius:12px!important;
-    font-size:9px!important;
-    line-height:1!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    box-shadow:none!important;
-  }
-  /* If the signed-in area contains email text, keep it from pushing the header. */
-  header #userArea>*{flex:0 0 auto!important}
-  header #userArea .userEmail,
-  header #userArea [class*="email"],
-  header #userArea small,
-  header #userArea span{
-    display:none!important;
-  }
-  .layout{
-    padding-top:12px!important;
-  }
-  .homeHero{
-    margin-top:0!important;
-  }
-}
-@media(max-width:380px){
-  header{padding-left:9px!important;padding-right:9px!important}
-  header .brand{max-width:calc(100% - 132px)!important}
-  header .brandMark{width:40px!important;height:40px!important;flex-basis:40px!important}
-  header .brandName{font-size:16px!important}
-  header .topActions>.iconBtn{width:33px!important;height:33px!important;flex-basis:33px!important}
-  header #userArea,.header #userArea{max-width:72px!important}
-  header #userArea .primary,header #userArea .ghost{max-width:72px!important;padding-left:8px!important;padding-right:8px!important}
-}
-</style>
-
-(function(){
-  function normalizeMobileHeader(){
-    const header=document.querySelector('header');
-    if(!header) return;
-    const actions=header.querySelector('.topActions');
-    if(actions){
-      const home=actions.querySelector('.iconBtn[aria-label="Beranda"]');
-      if(home) home.style.display='none';
-      const ua=actions.querySelector('#userArea');
-      if(ua){
-        const btn=ua.querySelector('button');
-        if(btn){
-          const clone=btn.cloneNode(true);
-          ua.replaceChildren(clone);
-        }
-      }
-    }
-  }
-  normalizeMobileHeader();
-  const old=window.__gaHeaderObserver;
-  if(old) old.disconnect();
-  window.__gaHeaderObserver=new MutationObserver(()=>normalizeMobileHeader());
-  window.__gaHeaderObserver.observe(document.body,{childList:true,subtree:true});
-})();
-<style id="ga-mobile-header-final">
-@media (max-width:760px){
-  html,body{overflow-x:hidden!important}
-  header{
-    box-sizing:border-box!important;
-    width:100%!important;
-    height:70px!important;
-    min-height:70px!important;
-    max-height:70px!important;
-    display:flex!important;
-    flex-direction:row!important;
-    flex-wrap:nowrap!important;
-    align-items:center!important;
-    justify-content:space-between!important;
-    gap:0!important;
-    padding:8px 10px!important;
-    overflow:hidden!important;
-    border-radius:0 0 18px 18px!important;
-  }
-  header .brand{
-    box-sizing:border-box!important;
-    display:flex!important;
-    flex:1 1 auto!important;
-    width:auto!important;
-    min-width:0!important;
-    max-width:none!important;
-    height:54px!important;
-    flex-wrap:nowrap!important;
-    align-items:center!important;
-    gap:8px!important;
-    overflow:hidden!important;
-  }
-  header .brandMark{
-    box-sizing:border-box!important;
-    display:block!important;
-    width:44px!important;
-    height:44px!important;
-    min-width:44px!important;
-    flex:0 0 44px!important;
-    padding:2px!important;
-    border-radius:50%!important;
-    overflow:hidden!important;
-  }
-  header .brand>div:not(.brandMark){
-    min-width:0!important;
-    max-width:120px!important;
-    overflow:hidden!important;
-  }
-  header .brandName{
-    display:block!important;
-    width:100%!important;
-    margin:0!important;
-    padding:0!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    font-family:Georgia,serif!important;
-    font-size:17px!important;
-    line-height:1.1!important;
-    letter-spacing:-.3px!important;
-  }
-  header .brandTag{display:none!important}
-  header .topSearch{display:none!important}
-  header .topActions{
-    box-sizing:border-box!important;
-    display:flex!important;
-    flex:0 0 auto!important;
-    width:auto!important;
-    max-width:none!important;
-    height:54px!important;
-    margin:0!important;
-    padding:0!important;
-    gap:3px!important;
-    flex-wrap:nowrap!important;
-    align-items:center!important;
-    justify-content:flex-end!important;
-    overflow:visible!important;
-    white-space:nowrap!important;
-  }
-  header .topActions>.iconBtn{
-    box-sizing:border-box!important;
-    display:grid!important;
-    place-items:center!important;
-    width:34px!important;
-    min-width:34px!important;
-    height:34px!important;
-    min-height:34px!important;
-    flex:0 0 34px!important;
-    padding:0!important;
-    margin:0!important;
-    border-radius:11px!important;
-    color:#fff!important;
-  }
-  header .topActions>.iconBtn:first-child{display:none!important}
-  header #userArea{
-    box-sizing:border-box!important;
-    display:block!important;
-    width:68px!important;
-    min-width:68px!important;
-    max-width:68px!important;
-    height:36px!important;
-    margin:0 0 0 3px!important;
-    padding:0!important;
-    overflow:hidden!important;
-  }
-  header #userArea button{
-    box-sizing:border-box!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:68px!important;
-    min-width:68px!important;
-    max-width:68px!important;
-    height:36px!important;
-    min-height:36px!important;
-    margin:0!important;
-    padding:0 8px!important;
-    border-radius:12px!important;
-    font-size:9px!important;
-    line-height:1!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    color:#fff!important;
-    background:rgba(255,255,255,.13)!important;
-    border:1px solid rgba(255,255,255,.25)!important;
-    box-shadow:none!important;
-  }
-  .layout{padding-top:12px!important}
-}
-@media (max-width:390px){
-  header{height:66px!important;min-height:66px!important;max-height:66px!important;padding:7px 8px!important}
-  header .brand{height:50px!important;gap:7px!important}
-  header .brandMark{width:40px!important;height:40px!important;min-width:40px!important;flex-basis:40px!important}
-  header .brand>div:not(.brandMark){max-width:105px!important}
-  header .brandName{font-size:15px!important}
-  header .topActions{height:50px!important;gap:2px!important}
-  header .topActions>.iconBtn{width:31px!important;min-width:31px!important;height:31px!important;min-height:31px!important;flex-basis:31px!important}
-  header #userArea,header #userArea button{width:61px!important;min-width:61px!important;max-width:61px!important}
-}
-</style>
