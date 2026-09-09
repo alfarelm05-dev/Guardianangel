@@ -359,16 +359,32 @@ async function startChat(other){
 }
 
 async function renderChat(){
- const {data:members}=await sb.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);const convIds=[...(members||[])].map(x=>x.conversation_id);
+ const {data:members,error}=await sb.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
+ if(error){$('main').innerHTML=msg('Pesan belum dapat dimuat. Silakan coba lagi.','error');return}
+ const convIds=[...new Set((members||[]).map(x=>x.conversation_id))];
  const {data:allMembers}=convIds.length?await sb.from('conversation_members').select('conversation_id,user_id').in('conversation_id',convIds):{data:[]};
- const otherIds=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];const {data:pub}=otherIds.length?await sb.from('public_profiles').select('id,name').in('id',otherIds):{data:[]};const names=Object.fromEntries((pub||[]).map(x=>[x.id,x.name]));
- const list=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.conversation_id))];
- if(!currentConversation)currentConversation=list[0]||null;
- $('main').innerHTML=`<div class="card"><h1>Pesan</h1><div class="tabs">${list.map(id=>{const other=(allMembers||[]).find(x=>x.conversation_id===id&&x.user_id!==user.id);return `<button class="${id===currentConversation?'primary':'ghost'}" onclick="selectConversation('${id}')">${esc(names[other?.user_id]||'Percakapan')}</button>`}).join('')||'<span class="muted">Belum ada percakapan. Buka Teman Seiman untuk menyapa seseorang.</span>'}</div></div>${currentConversation?chatBoxHTML():'<div class="card empty">Pilih percakapan untuk mulai mengobrol.</div>'}`;
- if(currentConversation){await loadMessages();subscribeMessages()}
+ const otherIds=[...new Set((allMembers||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];
+ const {data:pub}=otherIds.length?await sb.from('public_profiles').select('id,name,avatar_url').in('id',otherIds):{data:[]};
+ const profiles=Object.fromEntries((pub||[]).map(x=>[x.id,x]));
+ if(!convIds.length){currentConversation=null;$('main').innerHTML='<div class="card empty"><div class="conversationIcon">💬</div><h2>Pesan</h2><p>Belum ada percakapan.</p><p class="muted">Buka Teman Seiman untuk menyapa seseorang.</p></div>';return}
+ currentConversation=null;
+ const cards=convIds.map(id=>{const other=(allMembers||[]).find(x=>x.conversation_id===id&&x.user_id!==user.id);const p=profiles[other?.user_id]||{};const avatar=p.avatar_url?'<img src="'+esc(p.avatar_url)+'" alt="">':'<span>'+initials(p.name||'Pengguna')+'</span>';return '<button type="button" class="conversation-card" onclick="openConversation(\''+id+'\')"><div class="conversation-avatar">'+avatar+'</div><div class="conversation-info"><b>'+esc(p.name||'Percakapan')+'</b><span class="muted">Percakapan pribadi</span></div><span class="conversation-arrow">›</span></button>'}).join('');
+ $('main').innerHTML='<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h1 style="margin:0">Pesan</h1><span class="muted">'+convIds.length+' percakapan</span></div><div class="conversation-list">'+cards+'</div></div>';
 }
-async function selectConversation(id){currentConversation=id;await renderChat()}
-async function loadMessages(){const {data,error}=await sb.from('messages').select('id,sender_id,body,status,created_at').eq('conversation_id',currentConversation).order('created_at');if(error)return alert(error.message);cache.messages=data||[];const unreadIds=cache.messages.filter(m=>m.sender_id!==user.id).map(m=>m.id);if(unreadIds.length){const rows=unreadIds.map(message_id=>({message_id,user_id:user.id}));const mark=await sb.from('message_reads').upsert(rows,{onConflict:'message_id,user_id',ignoreDuplicates:true});if(mark.error)console.warn('mark messages read:',mark.error);else { await refreshUnreadBadges(); }}const ids=[...new Set(cache.messages.map(x=>x.sender_id))];const {data:pub}=ids.length?await sb.from('public_profiles').select('id,name').in('id',ids):{data:[]};const names=Object.fromEntries((pub||[]).map(x=>[x.id,x.name]));const box=$('messageList');if(box){box.innerHTML=cache.messages.map(m=>`<div class="bubble ${m.sender_id===user.id?'mine':''}"><b>${esc(names[m.sender_id]||'Pengguna')}</b><br>${esc(m.body||'')}</div>`).join('');box.scrollTop=box.scrollHeight}}
+async function openConversation(id){
+ currentConversation=id;
+ currentPage='chat';
+ document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.page==='chat'));
+ const {data:members}=await sb.from('conversation_members').select('conversation_id,user_id').eq('conversation_id',id);
+ allMembers=members||[];
+ const other=allMembers.find(x=>x.user_id!==user.id);
+ const {data:pub}=other?await sb.from('public_profiles').select('id,name,avatar_url').eq('id',other.user_id).maybeSingle():{data:null};
+ const avatar=pub?.avatar_url?'<img src="'+esc(pub.avatar_url)+'" alt="">':initials(pub?.name||'Percakapan');
+ $('main').innerHTML='<div class="card"><button class="ghost" onclick="closeConversation()">← Semua Pesan</button><div class="conversation-header"><div class="conversation-avatar">'+avatar+'</div><div><h2 style="margin:0">'+esc(pub?.name||'Percakapan')+'</h2><span class="muted">Percakapan pribadi</span></div></div></div>'+chatBoxHTML();
+ await loadMessages();subscribeMessages();
+}
+async function closeConversation(){currentConversation=null;if(realtimeChannel){sb.removeChannel(realtimeChannel);realtimeChannel=null}await renderChat()}
+async function selectConversation(id){await openConversation(id)}
 function chatBoxHTML(){return `<div class="card"><div id="messageList" class="message-list"><div class="empty">Memuat pesan...</div></div><div class="row"><input id="messageText" class="field" style="flex:1" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="primary" onclick="sendMessage()">Kirim</button></div></div>`}
 async function sendMessage(){const body=$('messageText').value.trim();if(!body||!currentConversation)return;const mod=await moderateText(body);if(mod.level>=4)return alert('Pesan ditolak karena pelanggaran berat.');const {error}=await sb.from('messages').insert({conversation_id:currentConversation,sender_id:user.id,body:body});if(error)return alert(error.message);$('messageText').value='';await loadMessages()}
 function subscribeMessages(){if(realtimeChannel)sb.removeChannel(realtimeChannel);realtimeChannel=sb.channel('guardian-chat-'+currentConversation).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:`conversation_id=eq.${currentConversation}`},()=>loadMessages()).subscribe()}
