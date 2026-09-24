@@ -1,5 +1,5 @@
 const SUPABASE_URL="https://eqjkdccqgmhulzqrfval.supabase.co";
-const SUPABASE_KEY="sb_publishable_yrkjmx0yAzvDnpuhCyVlUw_9QxU7Ngk";
+const SUPABASE_KEY="sb_publishable_yrkjmx0yAzvDnpCyVlUw_9QxU7Ngk";
 const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
 let session=null,user=null,profile=null,page="home",authMode="signin",projects=[];
 const $=id=>document.getElementById(id);
