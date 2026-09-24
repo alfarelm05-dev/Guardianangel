@@ -1,0 +1,7 @@
+export default async function handler(req,res){
+if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
+const body=req.body||{};if(!body.story)return res.status(400).json({error:"story is required"});
+const key=process.env.AI_API_KEY,base=(process.env.AI_API_BASE_URL||"").replace(/\/$/,""),model=process.env.AI_MODEL||"gpt-5-mini";
+if(!key||!base)return res.status(200).json({source:"local-fallback",scenes:null});
+const system="You are StoryAI, an Indonesian video storyteller. Return ONLY valid JSON with keys title, caption, scenes. scenes is an array with title, voice, visual, duration. Make concise Indonesian narration suitable for the requested duration. Never invent personal facts not present in the source.";
+try{const r=await fetch(base+"/chat/completions",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:JSON.stringify({model,temperature:.7,response_format:{type:"json_object"},messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(body)}]})});if(!r.ok)return res.status(200).json({source:"provider-error",scenes:null});const j=await r.json();const raw=j?.choices?.[0]?.message?.content||"{}";return res.status(200).json({...JSON.parse(raw),source:"ai"})}catch(e){return res.status(200).json({source:"fallback",scenes:null})}}
