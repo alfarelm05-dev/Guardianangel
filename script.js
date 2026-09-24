@@ -57,11 +57,18 @@ async function renderDemoVideo(){
   canvas.width=portrait?480:(square?640:854);canvas.height=portrait?854:(square?640:480);
   const ctx=canvas.getContext("2d",{alpha:false});if(!ctx)throw new Error("Canvas tidak tersedia.");
   const scenes=p.scenes,total=Math.max(5,Math.min(60,Number(p.duration)||10)),sceneDuration=total/scenes.length;
-  const images=await Promise.all(scenes.map((s,i)=>loadSceneImage(s.image_url||sceneImage(p.style,i))));
-  audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume().catch(()=>{});
-  if(status)status.textContent="Gambar siap • menyiapkan voice-over…";
-  const voices=await prepareVoices(scenes,audioCtx),usableVoice=voices.some(Boolean);
+  // Create the audio context immediately from the user's click. Waiting for network
+  // requests first can lose the browser's user-activation window and leave audio muted.
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  await audioCtx.resume().catch(()=>{});
   audioDest=audioCtx.createMediaStreamDestination();
+  if(status)status.textContent="Mengunduh gambar nyata • menyiapkan voice-over…";
+  const images=await Promise.all(scenes.map((s,i)=>loadSceneImage(s.image_url||sceneImage(p.style,i))));
+  const missingImages=images.filter(Boolean).length;
+  if(!missingImages)throw new Error("Gambar scene tidak dapat dimuat. Render dihentikan agar tidak menghasilkan video palsu.");
+  if(status)status.textContent="Gambar nyata siap • menyiapkan voice-over…";
+  const voices=await prepareVoices(scenes,audioCtx),usableVoice=voices.some(Boolean);
+  if(!usableVoice)throw new Error("Voice-over Bahasa Indonesia gagal dibuat. Render dihentikan agar tidak menghasilkan video tanpa suara.");
   stream=canvas.captureStream(12);if(!stream.getVideoTracks().length)throw new Error("Video stream tidak tersedia.");if(usableVoice)audioDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
   let mime="video/webm;codecs=vp8,opus";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm;codecs=vp8";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
   recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1800000});
@@ -69,7 +76,8 @@ async function renderDemoVideo(){
   const draw=elapsed=>{
    const ratio=Math.min(1,elapsed/total),idx=Math.min(scenes.length-1,Math.floor(ratio*scenes.length)),s=scenes[idx]||{},img=images[idx],w=canvas.width,h=canvas.height;
    ctx.fillStyle="#111";ctx.fillRect(0,0,w,h);
-   if(img){const ir=img.width/img.height,cr=w/h;let sw,sh,sx,sy;if(ir>cr){sh=img.height;sw=sh*cr;sx=(img.width-sw)/2;sy=0}else{sw=img.width;sh=sw/cr;sx=0;sy=(img.height-sh)/2}ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);ctx.fillStyle="rgba(0,0,0,.30)";ctx.fillRect(0,0,w,h)}else{const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"#171922");g.addColorStop(1,"#6947ff");ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}
+   if(!img)throw new Error("Scene "+(idx+1)+" tidak memiliki gambar nyata.");
+   {const ir=img.width/img.height,cr=w/h;let sw,sh,sx,sy;if(ir>cr){sh=img.height;sw=sh*cr;sx=(img.width-sw)/2;sy=0}else{sw=img.width;sh=sw/cr;sx=0;sy=(img.height-sh)/2}ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);ctx.fillStyle="rgba(0,0,0,.30)";ctx.fillRect(0,0,w,h)}
    ctx.fillStyle="#fff";ctx.font="800 18px system-ui";ctx.fillText("STORYAI",30,46);ctx.font="800 13px system-ui";ctx.fillStyle="rgba(255,255,255,.78)";ctx.fillText("SCENE "+String(idx+1).padStart(2,"0")+" / "+String(scenes.length).padStart(2,"0"),30,72);
    ctx.font="900 "+Math.round(w*.058)+"px system-ui";const words=String(s.title||"Cerita").split(/\s+/),lines=[];let line="";for(const word of words){const t=line?line+" "+word:word;if(ctx.measureText(t).width>w-60){lines.push(line);line=word}else line=t}if(line)lines.push(line);let yy=h*.54;for(const l of lines){ctx.fillText(l,30,yy);yy+=Math.round(w*.07)}
    ctx.font="500 15px system-ui";ctx.fillStyle="rgba(255,255,255,.88)";const v=String(s.visual||""),vl=v.length>95?v.slice(0,95)+"…":v;ctx.fillText(vl,30,h*.78);ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(30,h-30,w-60,3);ctx.fillStyle="#fff";ctx.fillRect(30,h-30,(w-60)*ratio,3);
