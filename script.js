@@ -38,14 +38,14 @@ function sceneImage(style,i){
  };
  return sets[style]?.[i%5]||sets.cinematic[i%5];
 }
-function loadSceneImage(url){return new Promise(resolve=>{const img=new Image();img.crossOrigin="anonymous";img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=url})}
+function loadSceneImage(url){return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src="/api/media-image?url="+encodeURIComponent(url)})}
 async function prepareVoices(scenes,audioCtx){
  return Promise.all(scenes.map(async scene=>{
   const text=String(scene?.voice||"").trim().slice(0,480);if(!text)return null;
   try{const r=await fetch("/api/tts?text="+encodeURIComponent(text));if(!r.ok)return null;const b=await r.arrayBuffer();if(!b.byteLength)return null;const buffer=await audioCtx.decodeAudioData(b.slice(0));return buffer}catch(e){console.warn("TTS unavailable",e);return null}
  }))
 }
-function renderVideo(project){$("main").innerHTML='<section class="sectionHead"><div><h2>Video Studio</h2><p>'+esc(project.title)+" · "+project.duration+" detik · "+project.format+'</p></div></section><section class="videoCard card"><div class="videoPreview"><div class="videoMock"><div class="big">✦</div><h3>'+esc(project.title)+'</h3><p>'+esc(project.caption)+'</p><small>Gambar nyata per scene + voice-over Bahasa Indonesia akan digunakan saat render.</small></div></div><div class="exportBar"><button id="renderRealBtn" class="btn primary" onclick="renderDemoVideo()">🎬 Buat Video + Suara</button><button class="btn" onclick="copyCaption()">▣ Salin caption</button><button class="btn" onclick="shareProject()">↗ Bagikan</button></div><div id="renderProgress" class="notice" style="margin-top:10px;display:none"><div class="row" style="justify-content:space-between;margin-bottom:7px"><b id="renderStatus">Menyiapkan video…</b><b id="renderPercent">0%</b></div><div class="progress"><i></i></div><small id="renderHint" style="display:block;margin-top:7px">Mengunduh gambar dan suara untuk setiap scene. Jangan tutup halaman.</small></div><div id="renderError" class="notice error" style="margin-top:10px;display:none"></div></section>';state.currentProject=project}
+function renderVideo(project){$("main").innerHTML='<section class="sectionHead"><div><h2>Video Studio</h2><p>'+esc(project.title)+" · "+project.duration+" detik · "+project.format+'</p></div></section><section class="videoCard card"><div class="videoPreview"><div class="videoMock"><div class="big">🎥</div><h3>'+esc(project.title)+'</h3><p>'+esc(project.caption)+'</p><small>Video akan dirender dengan gambar per scene dan voice-over Bahasa Indonesia. Preview gambar nyata ditampilkan sebelum render.</small></div></div><div class="exportBar"><button id="renderRealBtn" class="btn primary" onclick="renderDemoVideo()">🎬 Buat Video + Suara</button><button class="btn" onclick="copyCaption()">▣ Salin caption</button><button class="btn" onclick="shareProject()">↗ Bagikan</button></div><div id="renderProgress" class="notice" style="margin-top:10px;display:none"><div class="row" style="justify-content:space-between;margin-bottom:7px"><b id="renderStatus">Menyiapkan video…</b><b id="renderPercent">0%</b></div><div class="progress"><i></i></div><small id="renderHint" style="display:block;margin-top:7px">Mengunduh gambar dan suara untuk setiap scene. Jangan tutup halaman.</small></div><div id="renderError" class="notice error" style="margin-top:10px;display:none"></div></section>';state.currentProject=project}
 async function renderDemoVideo(){
  const p=state.currentProject,preview=document.querySelector(".videoPreview"),btn=document.querySelector("#renderRealBtn"),progress=document.querySelector("#renderProgress"),pct=document.querySelector("#renderPercent"),status=document.querySelector("#renderStatus"),errBox=document.querySelector("#renderError");
  if(!p?.scenes?.length){alert("Storyboard belum siap.");return}
@@ -59,7 +59,7 @@ async function renderDemoVideo(){
   const scenes=p.scenes,total=Math.max(5,Math.min(60,Number(p.duration)||10)),sceneDuration=total/scenes.length;
   const images=await Promise.all(scenes.map((s,i)=>loadSceneImage(s.image_url||sceneImage(p.style,i))));
   if(status)status.textContent="Gambar siap • menyiapkan voice-over…";
-  const voices=await Promise.all(scenes.map(prepareVoice)),usableVoice=voices.some(Boolean);
+  const voices=await prepareVoices(scenes,audioCtx),usableVoice=voices.some(Boolean);
   audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume().catch(()=>{});audioDest=audioCtx.createMediaStreamDestination();
   stream=canvas.captureStream(12);if(!stream.getVideoTracks().length)throw new Error("Video stream tidak tersedia.");if(usableVoice)audioDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
   let mime="video/webm;codecs=vp8,opus";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm;codecs=vp8";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
