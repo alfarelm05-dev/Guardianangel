@@ -28,48 +28,28 @@ function sceneHTML(s,i){return '<div class="scene"><div class="sceneNum">0'+(i+1
 async function createProject(){const d=state.generated;if(!d)return;const project={id:crypto.randomUUID(),title:d.title,caption:d.caption,source_text:d.sourceText,style:state.style,duration:state.duration,format:state.format,scenes:d.scenes,status:"storyboard_ready",created_at:new Date().toISOString()};if(user&&sb){const {data:row,error}=await sb.from("story_projects").insert({user_id:user.id,title:project.title,source_text:project.source_text,style:project.style,duration:project.duration,format:project.format,scenes:project.scenes,status:project.status}).select().single();if(!error&&row){project.id=row.id;project.created_at=row.created_at}else if(error)console.warn(error.message)}projects=[project,...projects.filter(x=>x.id!==project.id)];renderVideo(project)}
 function renderVideo(project){$("main").innerHTML='<section class="sectionHead"><div><h2>Video Studio</h2><p>'+esc(project.title)+" · "+project.duration+" detik · "+project.format+'</p></div></section><section class="videoCard card"><div class="videoPreview"><div class="videoMock"><div class="big">✦</div><h3>'+esc(project.title)+'</h3><p>'+esc(project.caption)+'</p><small>Storyboard siap. Render video AI penuh akan memakai pipeline video server.</small></div></div><div class="exportBar"><button id="renderRealBtn" class="btn primary" onclick="renderDemoVideo()">🎬 Buat Video</button><button class="btn" onclick="copyCaption()">▣ Salin caption</button><button class="btn" onclick="shareProject()">↗ Bagikan</button></div><div id="renderProgress" class="notice" style="margin-top:10px;display:none"><div class="progress"><i></i></div><small>Membuat video secara real-time… jangan tutup halaman.</small></div><div class="notice" style="margin-top:10px">Video sekarang benar-benar dirender dari storyboard di perangkat Anda. StoryAI memakai MP4 bila browser mendukung; jika tidak, otomatis memakai WebM.</div></section>';state.currentProject=project}
 async function renderDemoVideo(){
-  const p=state.currentProject;
-  if(!p?.scenes?.length)return alert("Storyboard belum siap.");
-  const preview=document.querySelector(".videoPreview");
-  if(!preview)return;
-  const canvas=document.createElement("canvas");
-  const portrait=p.format==="9:16", square=p.format==="1:1";
-  canvas.width=portrait?540:(square?720:960); canvas.height=portrait?960:(square?720:540);
-  const ctx=canvas.getContext("2d",{alpha:false}), fps=30, total=Math.max(8,Number(p.duration)||60);
-  const scenes=p.scenes, sceneDuration=total/scenes.length;
-  const mimeTypes=["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
-  const mime=mimeTypes.find(x=>MediaRecorder.isTypeSupported(x))||"video/webm", chunks=[];
-  let recorder;
-  try{recorder=new MediaRecorder(canvas.captureStream(fps),{mimeType:mime})}catch(e){return alert("Browser ini belum mendukung pembuatan video. Gunakan Chrome/Edge terbaru.")}
+  const p=state.currentProject;if(!p?.scenes?.length)return alert("Storyboard belum siap.");
+  const preview=document.querySelector(".videoPreview");if(!preview)return;
+  const canvas=document.createElement("canvas"),portrait=p.format==="9:16",square=p.format==="1:1";
+  canvas.width=portrait?540:(square?720:960);canvas.height=portrait?960:(square?720:540);
+  const ctx=canvas.getContext("2d",{alpha:false}),scenes=p.scenes,total=Math.max(5,Math.min(15,Number(p.duration)||10)),sceneDuration=total/scenes.length,fps=15;
+  const mime=["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/webm;codecs=vp8","video/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"video/webm",chunks=[];
+  let recorder;try{recorder=new MediaRecorder(canvas.captureStream(fps),{mimeType:mime,videoBitsPerSecond:1600000})}catch(e){return alert("Gunakan Chrome atau Edge terbaru untuk membuat video.")} 
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-  const ext=mime.startsWith("video/mp4")?"mp4":"webm", btn=document.querySelector("#renderRealBtn"), progress=document.querySelector("#renderProgress");
-  if(btn)btn.disabled=true;if(progress)progress.style.display="block";
-  recorder.start(250);
+  const ext=mime.startsWith("video/mp4")?"mp4":"webm",btn=document.querySelector("#renderRealBtn"),progress=document.querySelector("#renderProgress"),pct=document.querySelector("#renderPercent"),status=document.querySelector("#renderStatus");
+  if(btn){btn.disabled=true;btn.textContent="⏳ Membuat video…"}if(progress)progress.style.display="block";recorder.start(500);
   const start=performance.now();
   function frame(now){
-    const elapsed=(now-start)/1000, clamped=Math.min(elapsed,total), idx=Math.min(scenes.length-1,Math.floor(clamped/sceneDuration));
-    const s=scenes[idx], local=(clamped-idx*sceneDuration)/sceneDuration, w=canvas.width,h=canvas.height, hue=260+idx*24;
+    const elapsed=Math.min((now-start)/1000,total),percent=Math.min(100,Math.floor(elapsed/total*100)),idx=Math.min(scenes.length-1,Math.floor(elapsed/sceneDuration)),s=scenes[idx],local=(elapsed-idx*sceneDuration)/sceneDuration,w=canvas.width,h=canvas.height,hue=260+idx*24;
+    if(pct)pct.textContent=percent+"%";if(progress)progress.querySelector("i").style.width=percent+"%";if(status)status.textContent="Scene "+(idx+1)+" / "+scenes.length+" • "+percent+"%";
     const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"hsl("+hue+" 55% 12%)");g.addColorStop(1,"hsl("+(hue+35)+" 65% 24%)");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    for(let i=0;i<7;i++){ctx.beginPath();ctx.arc(w*(.12+i*.16),h*(.12+((i+idx)%4)*.21),45+25*Math.sin(now/900+i),0,Math.PI*2);ctx.fillStyle="hsla("+(hue+35)+" 90% 72% / .06)";ctx.fill()}
-    ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="800 18px system-ui";ctx.fillText("STORYAI",32,48);
-    ctx.font="800 15px system-ui";ctx.fillStyle="rgba(255,255,255,.65)";ctx.fillText("SCENE 0"+(idx+1),32,78);
-    const alpha=Math.min(1,local/.14,(1-local)/.14);ctx.globalAlpha=Math.max(.25,Math.min(1,alpha));
-    const title=String(s.title||"Cerita");ctx.fillStyle="#fff";ctx.font="900 "+Math.round(w*.065)+"px system-ui";
-    const words=title.split(/\s+/), lines=[];let line="";
-    for(const word of words){const test=line?line+" "+word:word;if(ctx.measureText(test).width>w-64){lines.push(line);line=word}else line=test}if(line)lines.push(line);
-    let y=h*.47;for(const l of lines){ctx.fillText(l,32,y);y+=Math.round(w*.075)}
-    ctx.font="500 17px system-ui";ctx.fillStyle="rgba(255,255,255,.78)";const visual=String(s.visual||"Visual cerita"),v=visual.length>95?visual.slice(0,92)+"…":visual;ctx.fillText(v,32,h*.70);
-    ctx.fillStyle="rgba(255,255,255,.52)";ctx.font="500 13px system-ui";ctx.fillText(String(s.voice||""),32,h*.76);
-    ctx.fillStyle="rgba(255,255,255,.22)";ctx.fillRect(32,h-34,w-64,3);ctx.fillStyle="#fff";ctx.fillRect(32,h-34,(w-64)*(clamped/total),3);ctx.globalAlpha=1;
-    if(progress)progress.querySelector("i").style.width=Math.round(clamped/total*100)+"%";
-    if(clamped<total)requestAnimationFrame(frame);else setTimeout(()=>recorder.stop(),120);
+    ctx.fillStyle="#fff";ctx.font="800 18px system-ui";ctx.fillText("STORYAI",32,48);ctx.font="800 14px system-ui";ctx.fillStyle="rgba(255,255,255,.6)";ctx.fillText("SCENE "+String(idx+1).padStart(2,"0"),32,75);
+    ctx.fillStyle="#fff";ctx.font="900 "+Math.round(w*.062)+"px system-ui";const words=String(s.title||"Cerita").split(/\s+/),lines=[];let line="";for(const word of words){const t=line?line+" "+word:word;if(ctx.measureText(t).width>w-64){lines.push(line);line=word}else line=t}if(line)lines.push(line);let y=h*.47;for(const l of lines){ctx.fillText(l,32,y);y+=Math.round(w*.072)}
+    ctx.font="500 16px system-ui";ctx.fillStyle="rgba(255,255,255,.78)";ctx.fillText(String(s.visual||"Visual cerita").slice(0,100),32,h*.70);
+    ctx.fillStyle="rgba(255,255,255,.22)";ctx.fillRect(32,h-34,w-64,3);ctx.fillStyle="#fff";ctx.fillRect(32,h-34,(w-64)*(elapsed/total),3);
+    if(elapsed<total)requestAnimationFrame(frame);else setTimeout(()=>recorder.stop(),100);
   }
-  recorder.onstop=()=>{
-    const blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob);state.currentVideo={url,blob,ext};
-    preview.innerHTML='<video controls playsinline style="width:100%;height:100%;object-fit:cover" src="'+url+'"></video>';
-    const exportBar=document.querySelector(".exportBar"),dl=document.createElement("a");dl.className="btn primary";dl.textContent="⬇ Download Video";dl.href=url;dl.download=(p.title||"storyai-video").replace(/[^a-z0-9_-]+/gi,"-")+"."+ext;exportBar?.appendChild(dl);
-    if(btn){btn.disabled=false;btn.textContent="↻ Buat ulang video"}if(progress)progress.style.display="none";
-  };
+  recorder.onstop=()=>{const blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob);state.currentVideo={url,blob,ext};preview.innerHTML='<video controls playsinline style="width:100%;height:100%;object-fit:cover" src="'+url+'"></video>';const bar=document.querySelector(".exportBar");if(bar){bar.querySelectorAll(".videoDownload").forEach(x=>x.remove());const dl=document.createElement("a");dl.className="btn primary videoDownload";dl.textContent="⬇ Download Video";dl.href=url;dl.download=(p.title||"storyai-video").replace(/[^a-z0-9_-]+/gi,"-")+"."+ext;bar.appendChild(dl)}if(pct)pct.textContent="100%";if(status)status.textContent="Video selesai • 100%";if(btn){btn.disabled=false;btn.textContent="↻ Buat ulang video"}};
   requestAnimationFrame(frame);
 }
 function copyCaption(){const p=state.currentProject;if(!p)return;navigator.clipboard?.writeText(p.caption||"").then(()=>alert("Caption disalin."))}
