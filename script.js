@@ -58,9 +58,10 @@ async function renderDemoVideo(){
   const ctx=canvas.getContext("2d",{alpha:false});if(!ctx)throw new Error("Canvas tidak tersedia.");
   const scenes=p.scenes,total=Math.max(5,Math.min(60,Number(p.duration)||10)),sceneDuration=total/scenes.length;
   const images=await Promise.all(scenes.map((s,i)=>loadSceneImage(s.image_url||sceneImage(p.style,i))));
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume().catch(()=>{});
   if(status)status.textContent="Gambar siap • menyiapkan voice-over…";
   const voices=await prepareVoices(scenes,audioCtx),usableVoice=voices.some(Boolean);
-  audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume().catch(()=>{});audioDest=audioCtx.createMediaStreamDestination();
+  audioDest=audioCtx.createMediaStreamDestination();
   stream=canvas.captureStream(12);if(!stream.getVideoTracks().length)throw new Error("Video stream tidak tersedia.");if(usableVoice)audioDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
   let mime="video/webm;codecs=vp8,opus";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm;codecs=vp8";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
   recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1800000});
