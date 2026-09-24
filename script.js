@@ -27,54 +27,57 @@ function renderStoryboard(data,sourceText){$("storyboardArea").innerHTML='<secti
 function sceneHTML(s,i){return '<div class="scene"><div class="sceneNum">0'+(i+1)+'<br><small>'+esc(String(s.duration))+'s</small></div><div class="sceneText"><b>'+esc(s.title)+'</b><small>Voice-over: '+esc(s.voice)+'</small><small>Visual: '+esc(s.visual)+'</small></div><button onclick="editScene('+i+')">✎</button></div>'}
 function editScene(i){const s=state.generated?.scenes?.[i]||state.currentProject?.scenes?.[i];if(!s)return;const voice=prompt("Voice-over scene:",s.voice);if(voice===null)return;const visual=prompt("Deskripsi visual scene:",s.visual);if(visual===null)return;s.voice=voice.trim()||s.voice;s.visual=visual.trim()||s.visual;renderStoryboard({title:state.generated.title,caption:state.generated.caption,scenes:state.generated.scenes,source:state.generated.source},state.generated.sourceText)}
 async function createProject(){const d=state.generated;if(!d)return;const project={id:crypto.randomUUID(),title:d.title,caption:d.caption,source_text:d.sourceText,style:state.style,duration:state.duration,format:state.format,scenes:d.scenes,status:"storyboard_ready",created_at:new Date().toISOString()};if(user&&sb){const {data:row,error}=await sb.from("story_projects").insert({user_id:user.id,title:project.title,source_text:project.source_text,style:project.style,duration:project.duration,format:project.format,scenes:project.scenes,status:project.status}).select().single();if(!error&&row){project.id=row.id;project.created_at=row.created_at}else if(error)console.warn(error.message)}projects=[project,...projects.filter(x=>x.id!==project.id)];renderVideo(project)}
-function renderVideo(project){$("main").innerHTML='<section class="sectionHead"><div><h2>Video Studio</h2><p>'+esc(project.title)+" · "+project.duration+" detik · "+project.format+'</p></div></section><section class="videoCard card"><div class="videoPreview"><div class="videoMock"><div class="big">✦</div><h3>'+esc(project.title)+'</h3><p>'+esc(project.caption)+'</p><small>Render video berbasis scene berjalan langsung di browser. Ini adalah renderer video, bukan generator video AI sinematik.</small></div></div><div class="exportBar"><button id="renderRealBtn" class="btn primary" onclick="renderDemoVideo()">🎬 Buat Video</button><button class="btn" onclick="copyCaption()">▣ Salin caption</button><button class="btn" onclick="shareProject()">↗ Bagikan</button></div><div id="renderProgress" class="notice" style="margin-top:10px;display:none"><div class="row" style="justify-content:space-between;margin-bottom:7px"><b id="renderStatus">Menyiapkan video…</b><b id="renderPercent">0%</b></div><div class="progress"><i></i></div><small id="renderHint" style="display:block;margin-top:7px">Jangan tutup halaman saat proses berjalan.</small></div><div id="renderError" class="notice error" style="margin-top:10px;display:none"></div></section>';state.currentProject=project}
+function sceneImage(style,i){
+ const sets={
+  cinematic:["https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=82"],
+  motivational:["https://images.unsplash.com/photo-1526401485004-2aa7e3a4a6a1?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1200&q=82"],
+  emotional:["https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1504150558240-0b4fd8946624?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1200&q=82"],
+  educational:["https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1453738773917-9c3eff1db985?auto=format&fit=crop&w=1200&q=82"],
+  business:["https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=82"],
+  casual:["https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=82","https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=82"]
+ };
+ return sets[style]?.[i%5]||sets.cinematic[i%5];
+}
+function loadSceneImage(url){return new Promise(resolve=>{const img=new Image();img.crossOrigin="anonymous";img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=url})}
+async function prepareVoice(scene){const text=String(scene?.voice||"").trim().slice(0,480);if(!text)return null;try{const r=await fetch("/api/tts?text="+encodeURIComponent(text));if(!r.ok)return null;const b=await r.arrayBuffer();if(!b.byteLength)return null;const ac=new (window.AudioContext||window.webkitAudioContext)();const buffer=await ac.decodeAudioData(b.slice(0));return{context:ac,buffer}}catch(e){console.warn("TTS unavailable",e);return null}}
+function renderVideo(project){$("main").innerHTML='<section class="sectionHead"><div><h2>Video Studio</h2><p>'+esc(project.title)+" · "+project.duration+" detik · "+project.format+'</p></div></section><section class="videoCard card"><div class="videoPreview"><div class="videoMock"><div class="big">✦</div><h3>'+esc(project.title)+'</h3><p>'+esc(project.caption)+'</p><small>Gambar nyata per scene + voice-over Bahasa Indonesia akan digunakan saat render.</small></div></div><div class="exportBar"><button id="renderRealBtn" class="btn primary" onclick="renderDemoVideo()">🎬 Buat Video + Suara</button><button class="btn" onclick="copyCaption()">▣ Salin caption</button><button class="btn" onclick="shareProject()">↗ Bagikan</button></div><div id="renderProgress" class="notice" style="margin-top:10px;display:none"><div class="row" style="justify-content:space-between;margin-bottom:7px"><b id="renderStatus">Menyiapkan video…</b><b id="renderPercent">0%</b></div><div class="progress"><i></i></div><small id="renderHint" style="display:block;margin-top:7px">Mengunduh gambar dan suara untuk setiap scene. Jangan tutup halaman.</small></div><div id="renderError" class="notice error" style="margin-top:10px;display:none"></div></section>';state.currentProject=project}
 async function renderDemoVideo(){
-  const p=state.currentProject,preview=document.querySelector(".videoPreview"),btn=document.querySelector("#renderRealBtn"),progress=document.querySelector("#renderProgress"),pct=document.querySelector("#renderPercent"),status=document.querySelector("#renderStatus"),errBox=document.querySelector("#renderError");
-  if(!p?.scenes?.length){alert("Storyboard belum siap.");return}
-  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){showRenderError("Browser tidak mendukung pembuatan video. Gunakan Google Chrome atau Microsoft Edge terbaru.");return}
-  if(btn)btn.disabled=true;if(progress)progress.style.display="block";if(errBox)errBox.style.display="none";if(status)status.textContent="Menyiapkan renderer…";if(pct)pct.textContent="0%";
-  let stream=null,recorder=null,timer=null,stopTimer=null,stopped=false,chunks=[];
-  try{
-    const canvas=document.createElement("canvas"),portrait=p.format==="9:16",square=p.format==="1:1";
-    canvas.width=portrait?480:(square?640:854);canvas.height=portrait?854:(square?640:480);
-    const ctx=canvas.getContext("2d",{alpha:false});
-    if(!ctx)throw new Error("Canvas tidak dapat dibuat.");
-    stream=canvas.captureStream(12);
-    if(!stream||!stream.getVideoTracks().length)throw new Error("Canvas video stream tidak tersedia.");
-    let mime="video/webm;codecs=vp8";
-    if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
-    if(!MediaRecorder.isTypeSupported(mime))throw new Error("Browser tidak mendukung format video WebM.");
-    recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1400000});
-    const scenes=p.scenes,total=Math.max(5,Math.min(12,Number(p.duration)||10)),start=performance.now();
-    const draw=(elapsed)=>{
-      const w=canvas.width,h=canvas.height,ratio=Math.min(1,elapsed/total),idx=Math.min(scenes.length-1,Math.floor(ratio*scenes.length)),s=scenes[idx]||{};
-      const hue=258+idx*22,g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"hsl("+hue+" 55% 10%)");g.addColorStop(1,"hsl("+(hue+40)+" 65% 25%)");
-      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle="#fff";ctx.font="800 18px system-ui";ctx.fillText("STORYAI",32,48);ctx.font="800 13px system-ui";ctx.fillStyle="rgba(255,255,255,.62)";ctx.fillText("SCENE "+String(idx+1).padStart(2,"0")+" / "+String(scenes.length).padStart(2,"0"),32,75);
-      ctx.fillStyle="#fff";ctx.font="900 "+Math.round(w*.062)+"px system-ui";const words=String(s.title||"Cerita").split(/\s+/),lines=[];let line="";for(const word of words){const t=line?line+" "+word:word;if(ctx.measureText(t).width>w-64){lines.push(line);line=word}else line=t}if(line)lines.push(line);let yy=h*.45;for(const l of lines){ctx.fillText(l,32,yy);yy+=Math.round(w*.075)}
-      ctx.font="500 16px system-ui";ctx.fillStyle="rgba(255,255,255,.78)";const v=String(s.visual||"Visual cerita"),vl=v.length>105?v.slice(0,105)+"…":v;ctx.fillText(vl,32,h*.70);ctx.fillStyle="rgba(255,255,255,.22)";ctx.fillRect(32,h-34,w-64,3);ctx.fillStyle="#fff";ctx.fillRect(32,h-34,(w-64)*ratio,3);
-      const percent=Math.min(100,Math.floor(ratio*100));if(pct)pct.textContent=percent+"%";if(progress){const bar=progress.querySelector("i");if(bar)bar.style.width=percent+"%"}if(status)status.textContent="Scene "+(idx+1)+" / "+scenes.length+" • "+percent+"%";
-    };
-    const cleanup=()=>{if(timer){clearInterval(timer);timer=null}if(stopTimer){clearTimeout(stopTimer);stopTimer=null}if(stream)stream.getTracks().forEach(t=>t.stop())};
-    recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-    recorder.onerror=e=>{if(stopped)return;stopped=true;cleanup();showRenderError("Render gagal di browser. Detail: "+(e?.error?.message||"MediaRecorder error"))};
-    recorder.onstop=()=>{
-      if(stopped)return;stopped=true;cleanup();
-      const blob=new Blob(chunks,{type:mime});
-      if(!blob.size){showRenderError("Video selesai direkam tetapi file kosong. Silakan coba lagi.");return}
-      const url=URL.createObjectURL(blob);state.currentVideo={url,blob,ext:"webm"};preview.innerHTML='<video controls playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover" src="'+url+'"></video>';
-      const bar=document.querySelector(".exportBar");if(bar){bar.querySelectorAll(".videoDownload").forEach(a=>a.remove());const dl=document.createElement("a");dl.className="btn primary videoDownload";dl.textContent="⬇ Download Video";dl.href=url;dl.download=(p.title||"storyai-video").replace(/[^a-z0-9_-]+/gi,"-")+".webm";bar.appendChild(dl)}
-      if(pct)pct.textContent="100%";if(status)status.textContent="Video selesai • 100%";if(btn){btn.disabled=false;btn.textContent="↻ Buat ulang video"}
-    };
-    draw(0);
-    recorder.start(250);
-    if(status)status.textContent="Merekam video…";
-    timer=setInterval(()=>{const elapsed=(performance.now()-start)/1000;draw(Math.min(elapsed,total));if(elapsed>=total){clearInterval(timer);timer=null;if(status)status.textContent="Menyelesaikan file video…";stopTimer=setTimeout(()=>{if(recorder&&recorder.state==="recording")recorder.stop()},500)}},100);
-  }catch(e){
-    if(recorder&&recorder.state==="recording")try{recorder.stop()}catch(_){}
-    if(stream)stream.getTracks().forEach(t=>t.stop());
-    if(btn){btn.disabled=false;btn.textContent="↻ Coba lagi"}showRenderError("Renderer tidak dapat dimulai: "+(e?.message||String(e)));
-  }
-  function showRenderError(message){if(status)status.textContent="Render gagal";if(errBox){errBox.textContent=message;errBox.style.display="block"}if(btn){btn.disabled=false;btn.textContent="↻ Coba lagi"}}
+ const p=state.currentProject,preview=document.querySelector(".videoPreview"),btn=document.querySelector("#renderRealBtn"),progress=document.querySelector("#renderProgress"),pct=document.querySelector("#renderPercent"),status=document.querySelector("#renderStatus"),errBox=document.querySelector("#renderError");
+ if(!p?.scenes?.length){alert("Storyboard belum siap.");return}
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){showRenderError("Browser tidak mendukung video render. Gunakan Google Chrome atau Microsoft Edge terbaru.");return}
+ if(btn)btn.disabled=true;if(progress)progress.style.display="block";if(errBox)errBox.style.display="none";
+ let stream=null,recorder=null,timer=null,stopTimer=null,stopped=false,chunks=[],audioCtx=null,audioDest=null;
+ try{
+  const canvas=document.createElement("canvas"),portrait=p.format==="9:16",square=p.format==="1:1";
+  canvas.width=portrait?480:(square?640:854);canvas.height=portrait?854:(square?640:480);
+  const ctx=canvas.getContext("2d",{alpha:false});if(!ctx)throw new Error("Canvas tidak tersedia.");
+  const scenes=p.scenes,total=Math.max(5,Math.min(60,Number(p.duration)||10)),sceneDuration=total/scenes.length;
+  const images=await Promise.all(scenes.map((s,i)=>loadSceneImage(s.image_url||sceneImage(p.style,i))));
+  if(status)status.textContent="Gambar siap • menyiapkan voice-over…";
+  const voices=await Promise.all(scenes.map(prepareVoice)),usableVoice=voices.some(Boolean);
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume().catch(()=>{});audioDest=audioCtx.createMediaStreamDestination();
+  stream=canvas.captureStream(12);if(!stream.getVideoTracks().length)throw new Error("Video stream tidak tersedia.");if(usableVoice)audioDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+  let mime="video/webm;codecs=vp8,opus";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm;codecs=vp8";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
+  recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:1800000});
+  const start=performance.now();
+  const draw=elapsed=>{
+   const ratio=Math.min(1,elapsed/total),idx=Math.min(scenes.length-1,Math.floor(ratio*scenes.length)),s=scenes[idx]||{},img=images[idx],w=canvas.width,h=canvas.height;
+   ctx.fillStyle="#111";ctx.fillRect(0,0,w,h);
+   if(img){const ir=img.width/img.height,cr=w/h;let sw,sh,sx,sy;if(ir>cr){sh=img.height;sw=sh*cr;sx=(img.width-sw)/2;sy=0}else{sw=img.width;sh=sw/cr;sx=0;sy=(img.height-sh)/2}ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);ctx.fillStyle="rgba(0,0,0,.30)";ctx.fillRect(0,0,w,h)}else{const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"#171922");g.addColorStop(1,"#6947ff");ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}
+   ctx.fillStyle="#fff";ctx.font="800 18px system-ui";ctx.fillText("STORYAI",30,46);ctx.font="800 13px system-ui";ctx.fillStyle="rgba(255,255,255,.78)";ctx.fillText("SCENE "+String(idx+1).padStart(2,"0")+" / "+String(scenes.length).padStart(2,"0"),30,72);
+   ctx.font="900 "+Math.round(w*.058)+"px system-ui";const words=String(s.title||"Cerita").split(/\s+/),lines=[];let line="";for(const word of words){const t=line?line+" "+word:word;if(ctx.measureText(t).width>w-60){lines.push(line);line=word}else line=t}if(line)lines.push(line);let yy=h*.54;for(const l of lines){ctx.fillText(l,30,yy);yy+=Math.round(w*.07)}
+   ctx.font="500 15px system-ui";ctx.fillStyle="rgba(255,255,255,.88)";const v=String(s.visual||""),vl=v.length>95?v.slice(0,95)+"…":v;ctx.fillText(vl,30,h*.78);ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(30,h-30,w-60,3);ctx.fillStyle="#fff";ctx.fillRect(30,h-30,(w-60)*ratio,3);
+   const percent=Math.min(100,Math.floor(ratio*100));if(pct)pct.textContent=percent+"%";if(progress){const bar=progress.querySelector("i");if(bar)bar.style.width=percent+"%"}if(status)status.textContent=(usableVoice?"Gambar + suara":"Gambar")+" • Scene "+(idx+1)+"/"+scenes.length+" • "+percent+"%";
+  };
+  const cleanup=()=>{if(timer){clearInterval(timer);timer=null}if(stopTimer){clearTimeout(stopTimer);stopTimer=null}if(stream)stream.getTracks().forEach(t=>t.stop());if(audioCtx)audioCtx.close().catch(()=>{})};
+  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+  recorder.onerror=e=>{if(stopped)return;stopped=true;cleanup();showRenderError("Render gagal: "+(e?.error?.message||"MediaRecorder error"))};
+  recorder.onstop=()=>{if(stopped)return;stopped=true;cleanup();const blob=new Blob(chunks,{type:mime});if(!blob.size){showRenderError("File video kosong.");return}const url=URL.createObjectURL(blob);state.currentVideo={url,blob,ext:"webm"};preview.innerHTML='<video controls playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover" src="'+url+'"></video>';const bar=document.querySelector(".exportBar");if(bar){bar.querySelectorAll(".videoDownload").forEach(a=>a.remove());const dl=document.createElement("a");dl.className="btn primary videoDownload";dl.textContent="⬇ Download Video";dl.href=url;dl.download=(p.title||"storyai-video").replace(/[^a-z0-9_-]+/gi,"-")+".webm";bar.appendChild(dl)}if(pct)pct.textContent="100%";if(status)status.textContent="Video selesai • 100%"+(usableVoice?" • suara aktif":" • suara tidak tersedia");if(btn){btn.disabled=false;btn.textContent="↻ Buat ulang video"}};
+  draw(0);recorder.start(250);
+  if(usableVoice){let offset=0;voices.forEach((v)=>{if(!v)return;const src=v.context.createBufferSource();src.buffer=v.buffer;src.connect(audioDest);try{src.start(audioCtx.currentTime+Math.max(0,offset))}catch(_){}offset+=sceneDuration})}
+  timer=setInterval(()=>{const elapsed=(performance.now()-start)/1000;draw(elapsed);if(elapsed>=total){clearInterval(timer);timer=null;if(status)status.textContent="Menyelesaikan video…";stopTimer=setTimeout(()=>{if(recorder.state==="recording")recorder.stop()},700)}},100);
+ }catch(e){if(recorder&&recorder.state==="recording")try{recorder.stop()}catch(_){}if(stream)stream.getTracks().forEach(t=>t.stop());if(audioCtx)audioCtx.close().catch(()=>{});if(btn){btn.disabled=false;btn.textContent="↻ Coba lagi"}showRenderError("Renderer tidak dapat dimulai: "+(e?.message||String(e)))}
+ function showRenderError(message){if(status)status.textContent="Render gagal";if(errBox){errBox.textContent=message;errBox.style.display="block"}if(btn){btn.disabled=false;btn.textContent="↻ Coba lagi"}}
 }
 function copyCaption(){const p=state.currentProject;if(!p)return;navigator.clipboard?.writeText(p.caption||"").then(()=>alert("Caption disalin."))}
 function shareProject(){const p=state.currentProject;if(!p)return;const text=p.title+"\n\n"+(p.caption||"");if(navigator.share)navigator.share({title:p.title,text});else navigator.clipboard?.writeText(text).then(()=>alert("Teks disalin ke clipboard."))}
